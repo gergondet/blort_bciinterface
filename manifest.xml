@@ -1,0 +1,15 @@
+<package>
+  <description brief="blort_bciinterface">
+
+     blort_bciinterface
+
+  </description>
+  <author>Pierre Gergondet</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/blort_bciinterface</url>
+  <depend package="blort"/>
+
+</package>
+
+
