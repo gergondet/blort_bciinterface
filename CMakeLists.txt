@@ -51,5 +51,5 @@ target_link_libraries(example blortobject ${BCIINTERFACE_LIBS} module_tracker mo
 rosbuild_link_boost(example thread)
 
 rosbuild_add_executable(minimal src/minimal.cpp)
-target_link_libraries(minimal module_tracker module_tomgine module_glwindow sfml-graphics sfml-window)
+target_link_libraries(minimal module_tracker module_tomgine module_glwindow sfml-graphics sfml-window GL)
 rosbuild_link_boost(minimal thread)
