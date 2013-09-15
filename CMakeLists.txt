@@ -53,3 +53,6 @@ rosbuild_link_boost(example thread)
 rosbuild_add_executable(minimal src/minimal.cpp)
 target_link_libraries(minimal module_tracker module_tomgine module_glwindow sfml-graphics sfml-window GL)
 rosbuild_link_boost(minimal thread)
+
+INSTALL(TARGETS blortobject DESTINATION ${BCIINTERFACE_LIBRARY_DIRS})
+INSTALL(FILES src/BLORTObject.h DESTINATION ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
