@@ -1,10 +1,11 @@
 #include "BLORTObject.h"
 
-BLORTObject::BLORTObject(const std::string & filename, int f, int screen, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight)
+BLORTObject::BLORTObject(ros::NodeHandle & nh, const std::string & filename, int f, int screen, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight)
 : bciinterface::SSVEPStimulus(f, screen), 
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), 
   filename(filename), model(0)
 {
+    sub = nh.subscribe("/blort_tracker/detection_result", 1, &BLORTObject::poseCallback, this);
     TomGine::tgCamera::Parameter camPar;
     camPar.width = 640;
     camPar.height = 480;
@@ -47,6 +48,7 @@ void BLORTObject::Display(sf::RenderWindow * app, unsigned int frameCount, sf::C
 
     if(DisplayActive(frameCount))
     {
+        boost::mutex::scoped_lock(pose_mutex);
         camera.Activate();
         pose.Activate();
         glViewport((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight);
@@ -54,4 +56,16 @@ void BLORTObject::Display(sf::RenderWindow * app, unsigned int frameCount, sf::C
         model->drawPass();
         pose.Deactivate();
     }
+}
+
+void BLORTObject::poseCallback(const geometry_msgs::Pose & msg)
+{
+    boost::mutex::scoped_lock(pose_mutex);
+    pose.t.x = msg.position.x;
+    pose.t.y = msg.position.y;
+    pose.t.z = msg.position.z;
+    pose.q.x = msg.orientation.x;
+    pose.q.y = msg.orientation.y;
+    pose.q.z = msg.orientation.z;
+    pose.q.w = msg.orientation.w;
 }

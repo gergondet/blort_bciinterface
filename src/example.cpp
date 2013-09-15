@@ -8,6 +8,9 @@
 
 int main(int argc, char * argv[])
 {
+    ros::init(argc, argv, "bci");
+    ros::NodeHandle nh;
+
     unsigned int wwidth = 1024;
     unsigned int wheight = 768;
     unsigned int iwidth = 800;
@@ -42,7 +45,7 @@ int main(int argc, char * argv[])
 
     g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
 
-    iface.AddObject(new BLORTObject("/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/Pringles.ply", 10, 60, wwidth, wheight, iwidth, iheight));
+    iface.AddObject(new BLORTObject(nh, "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/Pringles.ply", 10, 60, wwidth, wheight, iwidth, iheight));
 
     iface.DisplayLoop(false);
 
