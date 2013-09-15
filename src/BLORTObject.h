@@ -4,7 +4,6 @@
 #include <blort/Tracker/ModelLoader.h>
 #include <blort/TomGine/tgCamera.h>
 #include <blort/TomGine/tgPose.h>
-#include <blort/blort/pal_util.h>
 
 #include <ros/ros.h>
 #include <geometry_msgs/Pose.h>
