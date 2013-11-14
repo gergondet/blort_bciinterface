@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
 
     Tracking::TrackerModel * model = new Tracking::TrackerModel();
     Tracking::ModelLoader loader;
-    loader.LoadPly(*model, "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/Pringles.ply");
+    loader.LoadPly(*model, "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply");
 
     bool running = true;
     while (running)

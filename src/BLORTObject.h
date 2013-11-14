@@ -4,16 +4,17 @@
 #include <blort/Tracker/ModelLoader.h>
 #include <blort/TomGine/tgCamera.h>
 #include <blort/TomGine/tgPose.h>
+#include <blort/blort/pal_util.h>
 
 #include <ros/ros.h>
-#include <geometry_msgs/Pose.h>
+#include <blort_ros/TrackerResults.h>
 
 #include <boost/thread.hpp>
 
 class BLORTObject : public bciinterface::SSVEPStimulus
 {
 public:
-    BLORTObject(ros::NodeHandle & nh, const std::string & filename, int frequency, int screenFrequency, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight);
+    BLORTObject(ros::NodeHandle & nh, const std::string & object_name, const std::string & filename, int frequency, int screenFrequency, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight);
 
     ~BLORTObject();
 
@@ -21,14 +22,13 @@ public:
 
     virtual bool DrawWithGL() { return true; }
 private:
-    void poseCallback(const geometry_msgs::Pose & pose);
+    void resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult);
 private:
     unsigned int wwidth;
     unsigned int wheight;
     unsigned int iwidth;
     unsigned int iheight;
-    double wratio;
-    double hratio;
+    std::string object_name;
     std::string filename;
     Tracking::TrackerModel * model;
     TomGine::tgCamera camera;

@@ -14,7 +14,7 @@ rosbuild_init()
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 INCLUDE(FindPkgConfig)
 pkg_check_modules(BCIINTERFACE bci-interface)
@@ -47,7 +47,7 @@ rosbuild_add_library(blortobject src/BLORTObject.cpp)
 target_link_libraries(blortobject ${BCIINTERFACE_LIBS} module_tomgine)
 
 rosbuild_add_executable(example src/example.cpp)
-target_link_libraries(example blortobject ${BCIINTERFACE_LIBS} module_tracker module_tomgine module_glwindow)
+target_link_libraries(example blortobject rosbackground ${BCIINTERFACE_LIBS} module_tracker module_tomgine module_glwindow)
 rosbuild_link_boost(example thread)
 
 rosbuild_add_executable(minimal src/minimal.cpp)

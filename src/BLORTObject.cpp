@@ -1,11 +1,11 @@
 #include "BLORTObject.h"
 
-BLORTObject::BLORTObject(ros::NodeHandle & nh, const std::string & filename, int f, int screen, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight)
-: bciinterface::SSVEPStimulus(f, screen), 
-  wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), 
-  filename(filename), model(0)
+BLORTObject::BLORTObject(ros::NodeHandle & nh, const std::string & object_name, const std::string & filename, int f, int screen, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight)
+: bciinterface::SSVEPStimulus(f, screen),
+  wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight),
+  object_name(object_name), filename(filename), model(0)
 {
-    sub = nh.subscribe("/blort_tracker/detection_result", 1, &BLORTObject::poseCallback, this);
+    sub = nh.subscribe("/blort_tracker/detection_result", 1, &BLORTObject::resultCallback, this);
     TomGine::tgCamera::Parameter camPar;
     camPar.width = 640;
     camPar.height = 480;
@@ -18,7 +18,7 @@ BLORTObject::BLORTObject(ros::NodeHandle & nh, const std::string & filename, int
     camPar.k3 = 0;
     camPar.p1 = -0.001167;
     camPar.p2 = 0.002602;
-    camPar.pos.x = 0.31188; 
+    camPar.pos.x = 0.31188;
     camPar.pos.y = -0.3;
     camPar.pos.z = 0.243049;
     vec3 rotv; rotv.x = -1.917587; rotv.y = -0.453044; rotv.z = 0.389306;
@@ -28,8 +28,6 @@ BLORTObject::BLORTObject(ros::NodeHandle & nh, const std::string & filename, int
     camera.Load(camPar);
     pose.t = vec3(0.0, 0.1, 0.0);
     pose.Rotate(0.0f, 0.0f, 0.5f);
-    wratio = ((double)iwidth)/((double)camPar.width);
-    hratio = ((double)iheight)/((double)camPar.height);
 }
 
 BLORTObject::~BLORTObject()
@@ -52,20 +50,19 @@ void BLORTObject::Display(sf::RenderWindow * app, unsigned int frameCount, sf::C
         camera.Activate();
         pose.Activate();
         glViewport((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight);
-        glScaled(wratio, hratio, 1);
         model->drawPass();
         pose.Deactivate();
     }
 }
 
-void BLORTObject::poseCallback(const geometry_msgs::Pose & msg)
+void BLORTObject::resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult)
 {
-    boost::mutex::scoped_lock(pose_mutex);
-    pose.t.x = msg.position.x;
-    pose.t.y = msg.position.y;
-    pose.t.z = msg.position.z;
-    pose.q.x = msg.orientation.x;
-    pose.q.y = msg.orientation.y;
-    pose.q.z = msg.orientation.z;
-    pose.q.w = msg.orientation.w;
+    if(trackerResult->obj_name.data == object_name)
+    {
+        boost::mutex::scoped_lock(pose_mutex);
+        pose = pal_blort::rosPose2TgPose(trackerResult->poseInCamera);
+        pose.q.x = -pose.q.x;
+        pose.q.y = -pose.q.y;
+        pose.q.z = -pose.q.z;
+    }
 }

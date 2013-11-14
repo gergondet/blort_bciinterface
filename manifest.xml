@@ -8,7 +8,8 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/blort_bciinterface</url>
-  <depend package="blort"/>
+  <depend package="blort_ros"/>
+  <depend package="bciinterface_rosbackground"/>
 
 </package>
 

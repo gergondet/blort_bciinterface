@@ -6,50 +6,42 @@
 #include <SFML/OpenGL.hpp>
 #include <boost/thread.hpp>
 
+#include <bci-interface/Background/ROSBackground.h>
+
+void spinner(bool & iface_closed)
+{
+    while(ros::ok() && !iface_closed)
+    {
+        ros::spinOnce();
+    }
+}
+
 int main(int argc, char * argv[])
 {
     ros::init(argc, argv, "bci");
     ros::NodeHandle nh;
+    bool closed = false;
 
     unsigned int wwidth = 1024;
     unsigned int wheight = 768;
     unsigned int iwidth = 800;
     unsigned int iheight = 600;
     bciinterface::BCIInterface iface(wwidth, wheight);
-    bciinterface::BufferBG * bufferBG = new bciinterface::BufferBG(640, 480, wwidth, wheight, iwidth, iheight);
-    uint32_t * buffer = new uint32_t[640*480];
-    for(unsigned int x = 0; x < 640; ++x)
-    {
-        for(unsigned int y = 0; y < 480; ++y)
-        {
-            buffer[640*y + x] = 0xFF0000FF;
-            if(x >= 320 && y < 240)
-            {
-                buffer[640*y + x] = 0xFF00FF00;
-            }
-            if(x < 320 && y < 240)
-            {
-                buffer[640*y + x] = 0xFFFF0000;
-            }
-            if(x < 320 && y >= 240)
-            {
-                buffer[640*y + x] = 0xFF00FFFF;
-            }
-        }
-    }
-    bufferBG->SetSubRect(0, 0, 320, 240);
-    bufferBG->SetSubRect(0, 0, 640, 480);
-    bufferBG->UpdateFromBuffer_RGB((unsigned char*)buffer);
-    iface.SetBackground(bufferBG);
 
+    bciinterface::ROSBackground bg("/camera/rgb/image_color", wwidth, wheight, iwidth, iheight);
+    iface.SetBackground(&bg);
 
     g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
 
-    iface.AddObject(new BLORTObject(nh, "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/Pringles.ply", 10, 60, wwidth, wheight, iwidth, iheight));
+    iface.AddObject(new BLORTObject(nh, "can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", 10, 60, wwidth, wheight, iwidth, iheight));
+
+    boost::thread th = boost::thread(boost::bind(&spinner, boost::ref(closed)));
 
     iface.DisplayLoop(false);
+    closed = true;
+    th.join();
 
-    delete bufferBG;
+    iface.SetBackground(0);
 
     return 0;
 }
