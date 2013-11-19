@@ -1,4 +1,5 @@
 #include "BLORTObject.h"
+#include "BLORTObjectsManager.h"
 
 #include <bci-interface/BCIInterface.h>
 #include <bci-interface/Background/BufferBG.h>
@@ -22,6 +23,8 @@ int main(int argc, char * argv[])
     ros::NodeHandle nh;
     bool closed = false;
 
+    BLORTObjectsManager bomanager(nh);
+
     unsigned int wwidth = 1024;
     unsigned int wheight = 768;
     unsigned int iwidth = 800;
@@ -33,7 +36,18 @@ int main(int argc, char * argv[])
 
     g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
 
-    iface.AddObject(new BLORTObject(nh, "can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", 10, 60, wwidth, wheight, iwidth, iheight));
+    {
+        BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", 10, 60, wwidth, wheight, iwidth, iheight);
+    
+        iface.AddObject(obj);
+        bomanager.AddObject(obj);
+    }
+
+    {
+        BLORTObject * obj = new BLORTObject("thermos", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", 10, 60, wwidth, wheight, iwidth, iheight);
+        iface.AddObject(obj);
+        bomanager.AddObject(obj);
+    }
 
     boost::thread th = boost::thread(boost::bind(&spinner, boost::ref(closed)));
 

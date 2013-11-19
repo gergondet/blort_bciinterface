@@ -1,11 +1,10 @@
 #include "BLORTObject.h"
 
-BLORTObject::BLORTObject(ros::NodeHandle & nh, const std::string & object_name, const std::string & filename, int f, int screen, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight)
+BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, int f, int screen, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight)
 : bciinterface::SSVEPStimulus(f, screen),
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight),
-  object_name(object_name), filename(filename), model(0)
+  object_name(object_name), filename(filename), model(0), last_update(0)
 {
-    sub = nh.subscribe("/blort_tracker/detection_result", 1, &BLORTObject::resultCallback, this);
     TomGine::tgCamera::Parameter camPar;
     camPar.width = 640;
     camPar.height = 480;
@@ -44,7 +43,7 @@ void BLORTObject::Display(sf::RenderWindow * app, unsigned int frameCount, sf::C
         loader.LoadPly(*model, filename.c_str());
     }
 
-    if(DisplayActive(frameCount))
+    if( (ros::Time::now() - last_update).sec < 2 && DisplayActive(frameCount) )
     {
         boost::mutex::scoped_lock(pose_mutex);
         camera.Activate();
@@ -55,14 +54,12 @@ void BLORTObject::Display(sf::RenderWindow * app, unsigned int frameCount, sf::C
     }
 }
 
-void BLORTObject::resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult)
+void BLORTObject::Update(const blort_ros::TrackerResults::ConstPtr & trackerResult)
 {
-    if(trackerResult->obj_name.data == object_name)
-    {
-        boost::mutex::scoped_lock(pose_mutex);
-        pose = pal_blort::rosPose2TgPose(trackerResult->poseInCamera);
-        pose.q.x = -pose.q.x;
-        pose.q.y = -pose.q.y;
-        pose.q.z = -pose.q.z;
-    }
+    boost::mutex::scoped_lock(pose_mutex);
+    last_update = ros::Time::now();
+    pose = pal_blort::rosPose2TgPose(trackerResult->poseInCamera);
+    pose.q.x = -pose.q.x;
+    pose.q.y = -pose.q.y;
+    pose.q.z = -pose.q.z;
 }

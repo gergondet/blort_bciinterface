@@ -1,3 +1,6 @@
+#ifndef _H_BLORTOBJECT_H_
+#define _H_BLORTOBJECT_H_
+
 #include <bci-interface/DisplayObject/SSVEPStimulus.h>
 
 #include <blort/Tracker/Resources.h>
@@ -14,16 +17,22 @@
 class BLORTObject : public bciinterface::SSVEPStimulus
 {
 public:
-    BLORTObject(ros::NodeHandle & nh, const std::string & object_name, const std::string & filename, int frequency, int screenFrequency, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight);
+    BLORTObject(const std::string & object_name, const std::string & filename, int frequency, int screenFrequency, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight);
 
     ~BLORTObject();
 
     virtual void Display(sf::RenderWindow * app, unsigned int frameCount, sf::Clock & clock);
 
     virtual bool DrawWithGL() { return true; }
+
+    void Update(const blort_ros::TrackerResults::ConstPtr & trackerResult);
+
+    const std::string & getName() { return object_name; }
 private:
-    void resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult);
-private:
+    /* No copy */
+    BLORTObject(const BLORTObject &);
+    BLORTObject & operator=(const BLORTObject &);
+
     unsigned int wwidth;
     unsigned int wheight;
     unsigned int iwidth;
@@ -34,5 +43,7 @@ private:
     TomGine::tgCamera camera;
     TomGine::tgPose pose;
     boost::mutex pose_mutex;
-    ros::Subscriber sub;
+    ros::Time last_update;
 };
+
+#endif

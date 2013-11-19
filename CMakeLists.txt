@@ -43,7 +43,7 @@ ENDIF(BCIINTERFACE_FOUND)
 ADD_DEFINITIONS(${BCIINTERFACE_CFLAGS})
 rosbuild_add_boost_directories()
 
-rosbuild_add_library(blortobject src/BLORTObject.cpp)
+rosbuild_add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
 target_link_libraries(blortobject ${BCIINTERFACE_LIBS} module_tomgine)
 
 rosbuild_add_executable(example src/example.cpp)
