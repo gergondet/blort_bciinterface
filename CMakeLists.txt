@@ -14,7 +14,7 @@ rosbuild_init()
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 INCLUDE(FindPkgConfig)
 pkg_check_modules(BCIINTERFACE bci-interface)
@@ -44,7 +44,7 @@ ADD_DEFINITIONS(${BCIINTERFACE_CFLAGS})
 rosbuild_add_boost_directories()
 
 rosbuild_add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
-target_link_libraries(blortobject ${BCIINTERFACE_LIBS} module_tomgine)
+target_link_libraries(blortobject ${BCIINTERFACE_LIBS} module_tracker module_tomgine module_glwindow GL)
 
 rosbuild_add_executable(example src/example.cpp)
 target_link_libraries(example blortobject rosbackground ${BCIINTERFACE_LIBS} module_tracker module_tomgine module_glwindow)
@@ -54,5 +54,5 @@ rosbuild_add_executable(minimal src/minimal.cpp)
 target_link_libraries(minimal module_tracker module_tomgine module_glwindow sfml-graphics sfml-window GL)
 rosbuild_link_boost(minimal thread)
 
+INSTALL(FILES src/BLORTObject.h src/BLORTObjectsManager.h DESTINATION ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
 INSTALL(TARGETS blortobject DESTINATION ${BCIINTERFACE_LIBRARY_DIRS})
-INSTALL(FILES src/BLORTObject.h DESTINATION ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
