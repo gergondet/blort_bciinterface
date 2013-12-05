@@ -7,6 +7,17 @@ BLORTObjectsManager::BLORTObjectsManager(ros::NodeHandle & nh) : objects(0)
     sub = nh.subscribe("/blort_tracker/detection_result", 100, &BLORTObjectsManager::resultCallback, this);
 }
 
+TomGine::tgPose BLORTObjectsManager::GetObjectPosition(const std::string & obj_name)
+{
+    if(positions.count(obj_name))
+    {
+        return positions[obj_name];
+    }
+    std::cerr << "Did not receive information about " << obj_name << ", giving default position" << std::endl;
+    TomGine::tgPose ret;
+    return ret;
+}
+
 void BLORTObjectsManager::AddObject(BLORTObject * object)
 {
     objects.push_back(object);

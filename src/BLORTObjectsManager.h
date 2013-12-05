@@ -16,6 +16,7 @@ class BLORTObjectsManager
 public:
     BLORTObjectsManager(ros::NodeHandle & nh);
 
+    TomGine::tgPose GetObjectPosition(const std::string & obj_name);
 protected:
     void AddObject(BLORTObject * object);
 
