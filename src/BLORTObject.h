@@ -14,10 +14,12 @@
 
 #include <boost/thread.hpp>
 
+#include "BLORTObjectsManager.h"
+
 class BLORTObject : public bciinterface::SSVEPStimulus
 {
 public:
-    BLORTObject(const std::string & object_name, const std::string & filename, int frequency, int screenFrequency, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight);
+    BLORTObject(const std::string & object_name, const std::string & filename, int frequency, int screenFrequency, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight, BLORTObjectsManager & manager);
 
     ~BLORTObject();
 
@@ -32,6 +34,8 @@ private:
     /* No copy */
     BLORTObject(const BLORTObject &);
     BLORTObject & operator=(const BLORTObject &);
+
+    BLORTObjectsManager & manager;
 
     unsigned int wwidth;
     unsigned int wheight;

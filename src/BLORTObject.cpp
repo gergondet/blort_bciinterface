@@ -1,7 +1,7 @@
 #include "BLORTObject.h"
 
-BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, int f, int screen, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight)
-: bciinterface::SSVEPStimulus(f, screen),
+BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, int f, int screen, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight, BLORTObjectsManager & manager)
+: bciinterface::SSVEPStimulus(f, screen), manager(manager),
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight),
   object_name(object_name), filename(filename), model(0), last_update(0)
 {
@@ -27,10 +27,12 @@ BLORTObject::BLORTObject(const std::string & object_name, const std::string & fi
     camera.Load(camPar);
     pose.t = vec3(0.0, 0.1, 0.0);
     pose.Rotate(0.0f, 0.0f, 0.5f);
+    manager.AddObject(this);
 }
 
 BLORTObject::~BLORTObject()
 {
+    manager.RemoveObject(this);
     delete model;
 }
 

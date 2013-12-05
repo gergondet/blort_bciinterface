@@ -37,16 +37,14 @@ int main(int argc, char * argv[])
     g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
 
     {
-        BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", 10, 60, wwidth, wheight, iwidth, iheight);
+        BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", 10, 60, wwidth, wheight, iwidth, iheight, bomanager);
     
         iface.AddObject(obj);
-        bomanager.AddObject(obj);
     }
 
     {
-        BLORTObject * obj = new BLORTObject("thermos", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", 10, 60, wwidth, wheight, iwidth, iheight);
+        BLORTObject * obj = new BLORTObject("thermos", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", 10, 60, wwidth, wheight, iwidth, iheight, bomanager);
         iface.AddObject(obj);
-        bomanager.AddObject(obj);
     }
 
     boost::thread th = boost::thread(boost::bind(&spinner, boost::ref(closed)));
