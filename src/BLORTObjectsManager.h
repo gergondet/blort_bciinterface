@@ -6,6 +6,8 @@
 #include <ros/ros.h>
 #include <blort_ros/TrackerResults.h>
 
+#include <blort/TomGine/tgPose.h>
+
 class BLORTObject;
 
 class BLORTObjectsManager
@@ -21,6 +23,7 @@ protected:
 private:
     void resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult);
 
+    std::map<std::string, TomGine::tgPose> positions;
     std::vector<BLORTObject *> objects;
     ros::Subscriber sub;
 };

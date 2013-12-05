@@ -56,12 +56,9 @@ void BLORTObject::Display(sf::RenderWindow * app, unsigned int frameCount, sf::C
     }
 }
 
-void BLORTObject::Update(const blort_ros::TrackerResults::ConstPtr & trackerResult)
+void BLORTObject::Update(const TomGine::tgPose & nPose)
 {
     boost::mutex::scoped_lock(pose_mutex);
     last_update = ros::Time::now();
-    pose = pal_blort::rosPose2TgPose(trackerResult->poseInCamera);
-    pose.q.x = -pose.q.x;
-    pose.q.y = -pose.q.y;
-    pose.q.z = -pose.q.z;
+    pose = nPose;
 }

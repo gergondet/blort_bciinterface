@@ -10,7 +10,6 @@
 #include <blort/blort/pal_util.h>
 
 #include <ros/ros.h>
-#include <blort_ros/TrackerResults.h>
 
 #include <boost/thread.hpp>
 
@@ -27,7 +26,7 @@ public:
 
     virtual bool DrawWithGL() { return true; }
 
-    void Update(const blort_ros::TrackerResults::ConstPtr & trackerResult);
+    void Update(const TomGine::tgPose & nPose);
 
     const std::string & getName() { return object_name; }
 private:
