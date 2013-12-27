@@ -43,15 +43,17 @@ ENDIF(BCIINTERFACE_FOUND)
 ADD_DEFINITIONS(${BCIINTERFACE_CFLAGS})
 rosbuild_add_boost_directories()
 
+LINK_DIRECTORIES(${BCIINTERFACE_LIBRARY_DIRS})
+
 rosbuild_add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
-target_link_libraries(blortobject ${BCIINTERFACE_LIBS} module_tracker module_tomgine module_glwindow GL)
+target_link_libraries(blortobject bci-interface module_tracker module_tomgine module_glwindow GL)
 
 rosbuild_add_executable(example src/example.cpp)
-target_link_libraries(example blortobject rosbackground ${BCIINTERFACE_LIBS} module_tracker module_tomgine module_glwindow)
+target_link_libraries(example blortobject rosbackground bci-interface module_tracker module_tomgine module_glwindow)
 rosbuild_link_boost(example thread)
 
 rosbuild_add_executable(minimal src/minimal.cpp)
-target_link_libraries(minimal module_tracker module_tomgine module_glwindow sfml-graphics sfml-window GL)
+target_link_libraries(minimal module_tracker module_tomgine module_glwindow sfml-graphics sfml-window sfml-system GL)
 rosbuild_link_boost(minimal thread)
 
 INSTALL(FILES src/BLORTObject.h src/BLORTObjectsManager.h DESTINATION ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
