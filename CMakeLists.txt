@@ -41,15 +41,16 @@ ENDIF(BCIINTERFACE_FOUND)
 #target_link_libraries(example ${PROJECT_NAME})
 
 ADD_DEFINITIONS(${BCIINTERFACE_CFLAGS})
+LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/lib)
 rosbuild_add_boost_directories()
 
 LINK_DIRECTORIES(${BCIINTERFACE_LIBRARY_DIRS})
 
 rosbuild_add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
-target_link_libraries(blortobject bci-interface module_tracker module_tomgine module_glwindow GL)
+target_link_libraries(blortobject bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine module_glwindow GL)
 
 rosbuild_add_executable(example src/example.cpp)
-target_link_libraries(example blortobject rosbackground bci-interface module_tracker module_tomgine module_glwindow)
+target_link_libraries(example blortobject rosbackground bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine module_glwindow)
 rosbuild_link_boost(example thread)
 
 rosbuild_add_executable(minimal src/minimal.cpp)

@@ -22,7 +22,7 @@ public:
 
     ~BLORTObject();
 
-    virtual void Display(sf::RenderWindow * app, unsigned int frameCount, sf::Clock & clock);
+    virtual void Display(sf::RenderTarget * app, unsigned int frameCount, sf::Clock & clock);
 
     virtual bool DrawWithGL() { return true; }
 

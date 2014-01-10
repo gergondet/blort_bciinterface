@@ -15,7 +15,7 @@ BLORTObject::~BLORTObject()
     delete model_hl;
 }
 
-void BLORTObject::Display(sf::RenderWindow * app, unsigned int frameCount, sf::Clock & clock)
+void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::Clock & clock)
 {
     if(!model)
     {
