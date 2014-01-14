@@ -60,8 +60,11 @@ int main(int argc, char * argv[])
     g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
 
     {
-        BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", 10, 60, wwidth, wheight, iwidth, iheight, bomanager);
-    
+        BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
+        iface.AddObject(obj);
+    }
+    {
+        BLORTObject * obj = new BLORTObject("thermos", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
         iface.AddObject(obj);
     }
 
