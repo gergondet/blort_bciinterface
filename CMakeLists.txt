@@ -53,6 +53,10 @@ rosbuild_add_executable(example src/example.cpp)
 target_link_libraries(example blortobject rosbackground bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine module_glwindow)
 rosbuild_link_boost(example thread)
 
+rosbuild_add_executable(example-oculus src/example-oculus.cpp)
+target_link_libraries(example-oculus blortobject rosbackground bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine module_glwindow)
+rosbuild_link_boost(example-oculus thread)
+
 rosbuild_add_executable(minimal src/minimal.cpp)
 target_link_libraries(minimal module_tracker module_tomgine module_glwindow sfml-graphics sfml-window sfml-system GL)
 rosbuild_link_boost(minimal thread)
