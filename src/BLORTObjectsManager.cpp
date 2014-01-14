@@ -56,11 +56,11 @@ void BLORTObjectsManager::resultCallback(const blort_ros::TrackerResults::ConstP
     {
         if( objects[i]->getName() == (trackerResult->obj_name.data) )
         {
-            TomGine::tgPose pInCam = pal_blort::rosPose2TgPose(trackerResult->poseInCamera);
+            TomGine::tgPose pInCam = pal_blort::rosPose2TgPose(trackerResult->pose.pose);
             pInCam.q.x = -pInCam.q.x;
             pInCam.q.y = -pInCam.q.y;
             pInCam.q.z = -pInCam.q.z;
-            objects[i]->Update(positions[trackerResult->obj_name.data]);
+            objects[i]->Update(pInCam);
             break;
         }
     }

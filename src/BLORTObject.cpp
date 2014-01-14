@@ -19,22 +19,23 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
 {
     if(!model)
     {
+        /* TODO Get this from camera_info topic */
         TomGine::tgCamera::Parameter camPar;
         camPar.width = 640;
         camPar.height = 480;
-        camPar.fx = 538.047058;
-        camPar.fy = 538.226013;
-        camPar.cx = 319.509888;
-        camPar.cy = 239.332718;
-        camPar.k1 = 0.031828;
+        camPar.fx = 538.04704900000002;
+        camPar.fy = 538.22603900000001;
+        camPar.cx = 319.50987400000002;
+        camPar.cy = 239.33272500000001;
+        camPar.k1 = 0.031828000000000002;
         camPar.k2 = -0.106567;
         camPar.k3 = 0;
-        camPar.p1 = -0.001167;
-        camPar.p2 = 0.002602;
-        camPar.pos.x = 0.31188;
-        camPar.pos.y = -0.3;
-        camPar.pos.z = 0.243049;
-        vec3 rotv; rotv.x = -1.917587; rotv.y = -0.453044; rotv.z = 0.389306;
+        camPar.p1 = -0.0011670000000000001;
+        camPar.p2 = 0.0026020000000000001;
+        camPar.pos.x = 0;
+        camPar.pos.y = 0;
+        camPar.pos.z = 0;
+        vec3 rotv; rotv.x = 0; rotv.y = 0; rotv.z = 0;
         camPar.rot.fromRotVector(rotv);
         camPar.zNear = 0.1f;
         camPar.zFar = 5.0f;
@@ -42,7 +43,9 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         pose.t = vec3(0.0, 0.1, 0.0);
         pose.Rotate(0.0f, 0.0f, 0.5f);
         model = new Tracking::TrackerModel();
+        model->setBFC(false);
         model_hl = new Tracking::TrackerModel();
+        model_hl->setBFC(false);
         Tracking::ModelLoader loader;
         loader.LoadPly(*model, filename.c_str());
         loader.LoadPly(*model_hl, filename_hl.c_str());
