@@ -74,8 +74,8 @@ void BLORTObjectsManager::ignoreBLORTCallback()
         for(size_t i = 0; i < objects.size(); ++i)
         {
             TomGine::tgPose pInCam;
-            pInCam.t.x = 0.0917806476355; pInCam.t.y = 0.137198194861; pInCam.t.z = -0.0531721040606;
-            pInCam.q.x = 0.125980451703; pInCam.q.y = -0.127102732658; pInCam.q.z = -0.838982820511; pInCam.q.w = 0.513888657093;
+            pInCam.t.x = -0.0548632265952; pInCam.t.y = 0.0826817315426; pInCam.t.z = 0.537110917278;
+            pInCam.q.x = -0.0669074564852; pInCam.q.y = -0.712109361999; pInCam.q.z = 0.692551459563; pInCam.q.w = 0.0937876573768;
             objects[i]->Update(pInCam);
         }
         rt.sleep();
