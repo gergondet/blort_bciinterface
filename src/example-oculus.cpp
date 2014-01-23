@@ -2,6 +2,7 @@
 #include "BLORTObjectsManager.h"
 
 #include <bci-interface/BCIInterface.h>
+#include <bci-interface/EventHandler.h>
 #include <bci-interface/Utils/FontManager.h>
 #include <bci-interface/DisplayObject/FPSCounter.h>
 #include <bci-interface/Background/BufferBG.h>
@@ -21,6 +22,50 @@ void spinner(bool & iface_closed)
         ros::spinOnce();
     }
 }
+
+struct TestCameraSwitch : public bciinterface::EventHandler
+{
+    TestCameraSwitch(bciinterface::ROSBackground & bg, BLORTObjectsManager & manager, BLORTObject * object) : bg(bg), manager(manager), object(object), zoom_in(false), current_video_node("camera/rgb/image_color")
+    {
+    }
+
+    virtual void Process(sf::Event & event)
+    {
+        if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space )
+        {
+            if(current_video_node == "camera/rgb/image_color")
+            {
+                current_video_node = "vscore/image";
+            }
+            else
+            {
+                current_video_node = "camera/rgb/image_color";
+            }
+            bg.SetCameraTopic(current_video_node);
+        }
+        if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::S )
+        {
+            if(zoom_in)
+            {
+                bg.SetSubRect(0, 0, 640, 480);
+                object->SetSubRect(0, 0, 640, 480);
+            }
+            else
+            {
+                BLORTSubRect srect = manager.GetSubRect(200);
+                bg.SetSubRect(srect.left, srect.top, srect.width, srect.height);
+                object->SetSubRect(srect.left, srect.top, srect.width, srect.height);
+            }
+            zoom_in = !zoom_in;
+        }
+    }
+
+    bciinterface::ROSBackground & bg;
+    BLORTObjectsManager & manager;
+    BLORTObject * object;
+    bool zoom_in;
+    std::string current_video_node;
+};
 
 using namespace bciinterface;
 
@@ -67,15 +112,12 @@ int main(int argc, char * argv[])
     bciinterface::ROSBackground bg("/camera/rgb/image_color", rwidth, rheight, rwidth, rheight);
     iface.SetBackground(&bg);
 
-    {
-        BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
-        iface.AddObject(obj);
-    }
-//    {
-//        BLORTObject * obj = new BLORTObject("thermos", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
-//        iface.AddObject(obj);
-//    }
+    BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
+    iface.AddObject(obj);
     iface.AddNonOwnedObject(&fps_c);
+
+    TestCameraSwitch tcs(bg, bomanager, obj);
+    iface.AddEventHandler(&tcs);
 
     boost::thread th = boost::thread(boost::bind(&spinner, boost::ref(closed)));
 
