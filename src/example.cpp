@@ -2,6 +2,7 @@
 #include "BLORTObjectsManager.h"
 
 #include <bci-interface/BCIInterface.h>
+#include <bci-interface/EventHandler.h>
 #include <bci-interface/Background/BufferBG.h>
 #include <bci-interface/CommandReceiver/UDPReceiver.h>
 #include <bci-interface/CommandInterpreter/SimpleInterpreter.h>
@@ -20,6 +21,50 @@ void spinner(bool & iface_closed)
     }
 }
 
+struct TestCameraSwitch : public bciinterface::EventHandler
+{
+    TestCameraSwitch(bciinterface::ROSBackground & bg, BLORTObjectsManager & manager, BLORTObject * object) : bg(bg), manager(manager), object(object), zoom_in(false), current_video_node("camera/rgb/image_color")
+    {
+    }
+
+    virtual void Process(sf::Event & event)
+    {
+        if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space )
+        {
+            if(current_video_node == "camera/rgb/image_color")
+            {
+                current_video_node = "vscore/image";
+            }
+            else
+            {
+                current_video_node = "camera/rgb/image_color";
+            }
+            bg.SetCameraTopic(current_video_node);
+        }
+        if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::S )
+        {
+            if(zoom_in)
+            {
+                bg.SetSubRect(0, 0, 640, 480);
+                object->SetSubRect(0, 0, 640, 480);
+            }
+            else
+            {
+                BLORTSubRect srect = manager.GetSubRect(200);
+                bg.SetSubRect(srect.left, srect.top, srect.width, srect.height);
+                object->SetSubRect(srect.left, srect.top, srect.width, srect.height);
+            }
+            zoom_in = !zoom_in;
+        }
+    }
+
+    bciinterface::ROSBackground & bg;
+    BLORTObjectsManager & manager;
+    BLORTObject * object;
+    bool zoom_in;
+    std::string current_video_node;
+};
+
 using namespace bciinterface;
 
 int main(int argc, char * argv[])
@@ -35,12 +80,12 @@ int main(int argc, char * argv[])
         ss << argv[1];
         ss >> debug;
     }
-    BLORTObjectsManager bomanager(nh, debug);
+    BLORTObjectsManager bomanager(nh, "/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/", debug);
 
-    unsigned int wwidth = 1024;
-    unsigned int wheight = 768;
-    unsigned int iwidth = 800;
-    unsigned int iheight = 600;
+    int wwidth = 1024;
+    int wheight = 768;
+    int iwidth = 800;
+    int iheight = 600;
     BCIInterface iface(wwidth, wheight);
     UDPReceiver * receiver = new UDPReceiver(1111);
     SimpleInterpreter * interpreter = new SimpleInterpreter();
@@ -57,16 +102,11 @@ int main(int argc, char * argv[])
     bciinterface::ROSBackground bg("/camera/rgb/image_color", wwidth, wheight, iwidth, iheight);
     iface.SetBackground(&bg);
 
-    g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
+    BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
+    iface.AddObject(obj);
 
-    {
-        BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
-        iface.AddObject(obj);
-    }
-    {
-        BLORTObject * obj = new BLORTObject("thermos", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
-        iface.AddObject(obj);
-    }
+    TestCameraSwitch tcs(bg, bomanager, obj);
+    iface.AddEventHandler(&tcs);
 
     boost::thread th = boost::thread(boost::bind(&spinner, boost::ref(closed)));
 

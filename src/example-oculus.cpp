@@ -37,14 +37,14 @@ int main(int argc, char * argv[])
         ss << argv[1];
         ss >> debug;
     }
-    BLORTObjectsManager bomanager(nh, debug);
+    BLORTObjectsManager bomanager(nh, "/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/", debug);
 
     unsigned int width = 1280;
     unsigned int height = 800;
     unsigned int rwidth = 640;
     unsigned int rheight = 480;
     BCIInterface iface(width, height);
-    iface.InitOculus("/home/gergondet/devel/share/OculusWindow");
+    iface.InitOculus();
 
     FontManager fm;
     FPSCounter fps_c(fm.GetDefaultFont());
@@ -67,16 +67,14 @@ int main(int argc, char * argv[])
     bciinterface::ROSBackground bg("/camera/rgb/image_color", rwidth, rheight, rwidth, rheight);
     iface.SetBackground(&bg);
 
-    g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
-
     {
         BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
         iface.AddObject(obj);
     }
-    {
-        BLORTObject * obj = new BLORTObject("thermos", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
-        iface.AddObject(obj);
-    }
+//    {
+//        BLORTObject * obj = new BLORTObject("thermos", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/thermos.ply", 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
+//        iface.AddObject(obj);
+//    }
     iface.AddNonOwnedObject(&fps_c);
 
     boost::thread th = boost::thread(boost::bind(&spinner, boost::ref(closed)));
