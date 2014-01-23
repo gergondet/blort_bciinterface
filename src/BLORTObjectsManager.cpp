@@ -1,9 +1,11 @@
+#include <blort/Tracker/Resources.h>
 #include "BLORTObjectsManager.h"
 
 #include "BLORTObject.h"
 
-BLORTObjectsManager::BLORTObjectsManager(ros::NodeHandle & nh, bool ignore_blort) : ignore_blort(ignore_blort), objects(0)
+BLORTObjectsManager::BLORTObjectsManager(ros::NodeHandle & nh, const std::string & shader_path, bool ignore_blort) : ignore_blort(ignore_blort), objects(0)
 {
+    g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
     if(!ignore_blort)
     {
         sub = nh.subscribe("/blort_tracker/detection_result", 100, &BLORTObjectsManager::resultCallback, this);
@@ -12,6 +14,25 @@ BLORTObjectsManager::BLORTObjectsManager(ros::NodeHandle & nh, bool ignore_blort
     {
         ignoreBLORTth = boost::thread(boost::bind(&BLORTObjectsManager::ignoreBLORTCallback, this));
     }
+    /*FIXME Get from ROS topic */
+    camPar.width = 640;
+    camPar.height = 480;
+    camPar.fx = 538.04704900000002;
+    camPar.fy = 538.22603900000001;
+    camPar.cx = 319.50987400000002;
+    camPar.cy = 239.33272500000001;
+    camPar.k1 = 0.031828000000000002;
+    camPar.k2 = -0.106567;
+    camPar.k3 = 0;
+    camPar.p1 = -0.0011670000000000001;
+    camPar.p2 = 0.0026020000000000001;
+    camPar.pos.x = 0;
+    camPar.pos.y = 0;
+    camPar.pos.z = 0;
+    vec3 rotv; rotv.x = 0; rotv.y = 0; rotv.z = 0;
+    camPar.rot.fromRotVector(rotv);
+    camPar.zNear = 0.1f;
+    camPar.zFar = 5.0f;
 }
 
 TomGine::tgPose BLORTObjectsManager::GetObjectPosition(const std::string & obj_name)
@@ -23,6 +44,46 @@ TomGine::tgPose BLORTObjectsManager::GetObjectPosition(const std::string & obj_n
     std::cerr << "Did not receive information about " << obj_name << ", giving default position" << std::endl;
     TomGine::tgPose ret;
     return ret;
+}
+
+BLORTSubRect BLORTObjectsManager::GetSubRect(int object_size)
+{
+    BLORTSubRect res;
+    int minX = camPar.width; int maxX = 0;
+    int minY = camPar.height; int maxY = 0;
+    for(std::map<std::string, TomGine::tgPose>::iterator it = positions.begin(); it != positions.end(); ++it)
+    {
+        int u = 0; int v = 0;
+        ProjectPoint(it->second, u, v);
+        if(u < minX) { minX = u; }
+        if(u > maxX) { maxX = u; }
+        if(v < minY) { minY = v; }
+        if(v > maxY) { maxY = v; }
+    }
+    minX = minX > object_size/2 ? minX - object_size/2 : 0;
+    maxX = maxX + object_size/2 > camPar.height - 1 ? camPar.height - 1 : maxX + object_size/2;
+    minY = minY > object_size/2 ? minY - object_size/2 : 0;
+    maxY = maxY + object_size/2 > camPar.height - 1 ? camPar.height - 1 : maxY + object_size/2;
+    res.left = minX;
+    res.top = minY;
+    res.width = maxX - minX;
+    res.height = maxY - minY;
+    /* Preserve aspect ratio */
+    if(res.width > res.height)
+    {
+        int heightDiff = (double)camPar.height/(double)camPar.width * res.width - res.height;
+        res.height += heightDiff;
+        res.top -= heightDiff/2;
+        res.top = res.top < 0 ? 0 : res.top;
+    }
+    else
+    {
+        int widthDiff = (double)camPar.width/(double)camPar.height * res.height - res.width;
+        res.width += widthDiff;
+        res.left -= widthDiff/2;
+        res.left = res.left < 0 ? 0 : res.left;
+    }
+    return res;
 }
 
 void BLORTObjectsManager::AddObject(BLORTObject * object)
@@ -47,6 +108,18 @@ void BLORTObjectsManager::RemoveObject(BLORTObject * object)
             break;
         }
     }
+}
+
+void BLORTObjectsManager::ProjectPoint(const TomGine::tgPose & pose, int & u, int & v)
+{
+    if(pose.t.z == 0) { u = -1; v = -1; return; }
+    double xp = pose.t.x/pose.t.z;
+    double yp = pose.t.y/pose.t.z;
+    double r2 = xp*xp + yp*yp;
+    double xpp = xp*(1 + r2*(camPar.k1 + r2*(camPar.k2 + r2*camPar.k3))) + 2*camPar.p1*xp*yp + camPar.p2*(r2 + 2*xp*xp);
+    double ypp = yp*(1 + r2*(camPar.k1 + r2*(camPar.k2 + r2*camPar.k3))) + camPar.p1*(r2 + 2*yp*yp) + 2*camPar.p2*xp*yp; 
+    u = camPar.fx*xpp + camPar.cx;
+    v = camPar.fy*ypp + camPar.cy;
 }
 
 void BLORTObjectsManager::resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult)
@@ -74,8 +147,8 @@ void BLORTObjectsManager::ignoreBLORTCallback()
         for(size_t i = 0; i < objects.size(); ++i)
         {
             TomGine::tgPose pInCam;
-            pInCam.t.x = -0.0548632265952; pInCam.t.y = 0.0826817315426; pInCam.t.z = 0.537110917278;
-            pInCam.q.x = -0.0669074564852; pInCam.q.y = -0.712109361999; pInCam.q.z = 0.692551459563; pInCam.q.w = 0.0937876573768;
+            pInCam.t.x = 0.134408188062; pInCam.t.y = -0.00268787337344; pInCam.t.z = 0.417594547483;
+            pInCam.q.x = -0.565049071946; pInCam.q.y = -0.370892131447; pInCam.q.z = 0.440585349627; pInCam.q.w = 0.590798715992;
             objects[i]->Update(pInCam);
         }
         rt.sleep();

@@ -3,7 +3,6 @@
 
 #include <bci-interface/DisplayObject/SSVEPStimulus.h>
 
-#include <blort/Tracker/Resources.h>
 #include <blort/Tracker/ModelLoader.h>
 #include <blort/TomGine/tgCamera.h>
 #include <blort/TomGine/tgPose.h>
@@ -18,7 +17,7 @@
 class BLORTObject : public bciinterface::SSVEPStimulus
 {
 public:
-    BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, int frequency, int screenFrequency, unsigned int wwidth, unsigned int wheight, unsigned int iwidth, unsigned int iheight, BLORTObjectsManager & manager);
+    BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, int frequency, int screenFrequency, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
 
     ~BLORTObject();
 
@@ -33,6 +32,8 @@ public:
     void Update(const TomGine::tgPose & nPose);
 
     const std::string & getName() { return object_name; }
+
+    void SetSubRect(int t, int l, int w, int h);
 private:
     /* No copy */
     BLORTObject(const BLORTObject &);
@@ -40,10 +41,10 @@ private:
 
     BLORTObjectsManager & manager;
 
-    unsigned int wwidth;
-    unsigned int wheight;
-    unsigned int iwidth;
-    unsigned int iheight;
+    int wwidth;
+    int wheight;
+    int iwidth;
+    int iheight;
     bool highlight;
     std::string object_name;
     std::string filename;
@@ -54,6 +55,16 @@ private:
     TomGine::tgPose pose;
     boost::mutex pose_mutex;
     ros::Time last_update;
+
+    struct Viewport
+    {
+        Viewport(int l, int b, int w, int h) : left(l), bottom(b), width(w), height(h) {}
+        int left;
+        int bottom;
+        int width;
+        int height;
+    };
+    Viewport vp;
 };
 
 #endif
