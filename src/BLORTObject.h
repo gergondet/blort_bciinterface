@@ -2,6 +2,7 @@
 #define _H_BLORTOBJECT_H_
 
 #include <bci-interface/DisplayObject/SSVEPStimulus.h>
+#include <SFML/Graphics/Color.hpp>
 
 #include <blort/Tracker/ModelLoader.h>
 #include <blort/TomGine/tgCamera.h>
@@ -17,7 +18,7 @@
 class BLORTObject : public bciinterface::SSVEPStimulus
 {
 public:
-    BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, int frequency, int screenFrequency, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
+    BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, int frequency, int screenFrequency, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
 
     ~BLORTObject();
 
@@ -41,6 +42,14 @@ private:
 
     BLORTObjectsManager & manager;
 
+    struct BLORTObjectColor
+    {
+        float r;
+        float g;
+        float b;
+        float a;
+    };
+
     int wwidth;
     int wheight;
     int iwidth;
@@ -51,6 +60,7 @@ private:
     std::string filename_hl;
     Tracking::TrackerModel * model;
     Tracking::TrackerModel * model_hl;
+    BLORTObjectColor color;
     TomGine::tgCamera camera;
     TomGine::tgPose pose;
     boost::mutex pose_mutex;

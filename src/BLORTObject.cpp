@@ -1,11 +1,16 @@
 #include "BLORTObject.h"
 
-BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, int f, int screen, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
+BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & sfcolor, int f, int screen, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
 : bciinterface::SSVEPStimulus(f, screen), manager(manager),
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), highlight(false),
-  object_name(object_name), filename(filename), filename_hl(filename_hl), model(0), model_hl(0), last_update(0),
+  object_name(object_name), filename(filename), filename_hl(filename_hl), model(0), model_hl(0),
+  last_update(0),
   vp((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight)
 {
+    color.r = (float)sfcolor.r/255.0f;
+    color.g = (float)sfcolor.g/255.0f;
+    color.b = (float)sfcolor.b/255.0f;
+    color.a = (float)sfcolor.a/255.0f;
     manager.AddObject(this);
 }
 
@@ -33,7 +38,7 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         loader.LoadPly(*model_hl, filename_hl.c_str());
     }
 
-    if( (ros::Time::now() - last_update).sec < 2 && DisplayActive(frameCount) )
+    if( (ros::Time::now() - last_update).sec < 2 )
     {
         boost::mutex::scoped_lock(pose_mutex);
         camera.Activate();
@@ -41,13 +46,16 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         glViewport(vp.left, vp.bottom, vp.width, vp.height);
         glEnable(GL_SCISSOR_TEST);
         glScissor((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight);
-        if(highlight)
+        Tracking::TrackerModel * m = highlight ? model_hl : model;
+        if( DisplayActive(frameCount) )
         {
-            model_hl->drawPass();
+            m->drawPass();
         }
         else
         {
-            model->drawPass();
+            glDisable(GL_TEXTURE_2D);
+            glColor4f(color.r, color.g, color.b, color.a);
+            m->drawFaces();
         }
         glDisable(GL_SCISSOR_TEST);
         pose.Deactivate();

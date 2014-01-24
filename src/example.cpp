@@ -102,7 +102,7 @@ int main(int argc, char * argv[])
     bciinterface::ROSBackground bg("/camera/rgb/image_color", wwidth, wheight, iwidth, iheight);
     iface.SetBackground(&bg);
 
-    BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
+    BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", sf::Color(255, 0, 0, 255), 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
     iface.AddObject(obj);
 
     TestCameraSwitch tcs(bg, bomanager, obj);
