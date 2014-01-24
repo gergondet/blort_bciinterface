@@ -5,7 +5,7 @@
 
 BLORTObjectsManager::BLORTObjectsManager(ros::NodeHandle & nh, const std::string & shader_path, bool ignore_blort) : ignore_blort(ignore_blort), objects(0)
 {
-    g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
+    g_Resources->SetShaderPath(shader_path.c_str());
     if(!ignore_blort)
     {
         sub = nh.subscribe("/blort_tracker/detection_result", 100, &BLORTObjectsManager::resultCallback, this);
