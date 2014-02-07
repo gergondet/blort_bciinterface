@@ -2,6 +2,7 @@
 #define _H_BLORTOBJECT_H_
 
 #include <bci-interface/DisplayObject/SSVEPStimulus.h>
+#include <bci-interface/DisplayObject/CVEPStimulus.h>
 #include <SFML/Graphics/Color.hpp>
 
 #include <blort/Tracker/ModelLoader.h>
@@ -15,10 +16,12 @@
 
 #include "BLORTObjectsManager.h"
 
-class BLORTObject : public bciinterface::SSVEPStimulus
+class BLORTObject : public bciinterface::DisplayObject
 {
 public:
     BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, int frequency, int screenFrequency, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
+
+    BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
 
     ~BLORTObject();
 
@@ -41,6 +44,9 @@ private:
     BLORTObject & operator=(const BLORTObject &);
 
     BLORTObjectsManager & manager;
+
+    bciinterface::SSVEPStimulus * ssvep_stim;
+    bciinterface::CVEPStimulus * cvep_stim;
 
     struct BLORTObjectColor
     {

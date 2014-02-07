@@ -1,12 +1,28 @@
 #include "BLORTObject.h"
 
 BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & sfcolor, int f, int screen, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
-: bciinterface::SSVEPStimulus(f, screen), manager(manager),
+: manager(manager),
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), highlight(false),
   object_name(object_name), filename(filename), filename_hl(filename_hl), model(0), model_hl(0),
   last_update(0),
   vp((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight)
 {
+    ssvep_stim = new bciinterface::SSVEPStimulus(f, screen);
+    color.r = (float)sfcolor.r/255.0f;
+    color.g = (float)sfcolor.g/255.0f;
+    color.b = (float)sfcolor.b/255.0f;
+    color.a = (float)sfcolor.a/255.0f;
+    manager.AddObject(this);
+}
+
+BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & sfcolor, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
+: manager(manager),
+  wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), highlight(false),
+  object_name(object_name), filename(filename), filename_hl(filename_hl), model(0), model_hl(0),
+  last_update(0),
+  vp((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight)
+{
+    cvep_stim = new bciinterface::CVEPStimulus(cvep_manager);
     color.r = (float)sfcolor.r/255.0f;
     color.g = (float)sfcolor.g/255.0f;
     color.b = (float)sfcolor.b/255.0f;
@@ -19,6 +35,8 @@ BLORTObject::~BLORTObject()
     manager.RemoveObject(this);
     delete model;
     delete model_hl;
+    delete ssvep_stim;
+    delete cvep_stim;
 }
 
 void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::Clock & clock)
@@ -47,7 +65,7 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         glEnable(GL_SCISSOR_TEST);
         glScissor((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight);
         Tracking::TrackerModel * m = highlight ? model_hl : model;
-        if( DisplayActive(frameCount) )
+        if( (ssvep_stim && ssvep_stim->DisplayActive(frameCount)) || (cvep_stim && cvep_stim->GetDisplay()) )
         {
             m->drawPass();
         }

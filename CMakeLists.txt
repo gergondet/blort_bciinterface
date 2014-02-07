@@ -47,7 +47,7 @@ rosbuild_add_boost_directories()
 LINK_DIRECTORIES(${BCIINTERFACE_LIBRARY_DIRS})
 
 rosbuild_add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
-target_link_libraries(blortobject bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine module_glwindow GL)
+target_link_libraries(blortobject cvep-stimuli bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine module_glwindow GL)
 
 rosbuild_add_executable(example src/example.cpp)
 target_link_libraries(example blortobject rosbackground bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine module_glwindow)
