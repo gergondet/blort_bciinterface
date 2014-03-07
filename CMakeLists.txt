@@ -1,4 +1,49 @@
 cmake_minimum_required(VERSION 2.4.6)
+
+IF(WIN32)
+
+PROJECT(blort_bciinterface)
+
+INCLUDE_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/include)
+LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/lib)
+
+SET(CVEP_STIMULUS_FOUND 0)
+FIND_PATH(HAS_CVEP_STIMULUS name CVEPStimulus.h PATHS ${CMAKE_INSTALL_PREFIX}/include/bci-interface/DisplayObject)
+IF(HAS_CVEP_STIMULUS STREQUAL "HAS_CVEP_STIMULUS-NOTFOUND")
+MESSAGE("Building without CVEP stimuli support")
+ELSE()
+MESSAGE(STATUS "Building with CVEP stimuli support")
+ADD_DEFINITIONS("-DHAS_CVEP_SUPPORT")
+SET(CVEP_STIMULUS_FOUND 1)
+ENDIF()
+IF(CVEP_STIMULUS_FOUND EQUAL 1)
+SET(CVEP_LIB "cvep-stimuli.lib;")
+ELSE()
+SET(CVEP_LIB "")
+ENDIF()
+
+add_library(blortobject SHARED src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
+target_link_libraries(blortobject "${CVEP_LIB}bci-interface.lib;sfml-oculus.lib;sfml-graphics.lib;sfml-window.lib;sfml-system.lib;module_tracker.lib;module_tomgine.lib;OpenGL32.lib;")
+
+LINK_DIRECTORIES(${CMAKE_BINARY_DIR})
+
+add_executable(example src/example.cpp)
+target_link_libraries(example "blortobject.lib;${CVEP_LIB}bci-interface.lib;sfml-oculus.lib;sfml-graphics.lib;sfml-window.lib;sfml-system.lib;module_tracker.lib;module_tomgine.lib;OpenGL32.lib;glew32.lib;")
+
+add_executable(example-oculus src/example-oculus.cpp)
+target_link_libraries(example-oculus "blortobject.lib;${CVEP_LIB}bci-interface.lib;sfml-oculus.lib;sfml-graphics.lib;sfml-window.lib;sfml-system.lib;module_tracker.lib;module_tomgine.lib;OpenGL32.lib;glew32.lib;")
+
+add_executable(minimal src/minimal.cpp)
+target_link_libraries(minimal "module_tracker.lib;module_tomgine.lib;sfml-graphics.lib;sfml-window.lib;sfml-system.lib;OpenGL32.lib;glew32.lib;")
+
+INSTALL(FILES src/BLORTObject.h src/BLORTObjectsManager.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include/bci-interface/DisplayObject)
+INSTALL(TARGETS blortobject 
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+
+ELSE(WIN32)
+
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 # Set the build type.  Options are:
@@ -78,3 +123,4 @@ rosbuild_link_boost(minimal thread)
 
 INSTALL(FILES src/BLORTObject.h src/BLORTObjectsManager.h DESTINATION ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
 INSTALL(TARGETS blortobject DESTINATION ${BCIINTERFACE_LIBRARY_DIRS})
+ENDIF(WIN32)

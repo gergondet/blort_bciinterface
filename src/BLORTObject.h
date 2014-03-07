@@ -10,9 +10,11 @@
 #include <blort/Tracker/ModelLoader.h>
 #include <blort/TomGine/tgCamera.h>
 #include <blort/TomGine/tgPose.h>
-#include <blort/blort/pal_util.h>
 
+#ifndef WIN32
+#include <blort/blort/pal_util.h>
 #include <ros/ros.h>
+#endif
 
 #include <boost/thread.hpp>
 
@@ -21,27 +23,27 @@
 class BLORTObject : public bciinterface::DisplayObject
 {
 public:
-    BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, int frequency, int screenFrequency, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
+    BLORT_API BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, int frequency, int screenFrequency, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
 
     #ifdef HAS_CVEP_SUPPORT
-    BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
+    BLORT_API BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
     #endif
 
-    ~BLORTObject();
+    BLORT_API ~BLORTObject();
 
-    virtual void Display(sf::RenderTarget * app, unsigned int frameCount, sf::Clock & clock);
+    BLORT_API virtual void Display(sf::RenderTarget * app, unsigned int frameCount, sf::Clock & clock);
 
-    virtual bool DrawWithGL() { return true; }
+    BLORT_API virtual bool DrawWithGL() { return true; }
 
-    virtual void Highlight();
+    BLORT_API virtual void Highlight();
 
-    virtual void Unhighlight();
+    BLORT_API virtual void Unhighlight();
 
-    void Update(const TomGine::tgPose & nPose);
+    BLORT_API void Update(const TomGine::tgPose & nPose);
 
-    const std::string & getName() { return object_name; }
+    BLORT_API const std::string & getName() { return object_name; }
 
-    void SetSubRect(int t, int l, int w, int h);
+    BLORT_API void SetSubRect(int t, int l, int w, int h);
 private:
     /* No copy */
     BLORTObject(const BLORTObject &);
@@ -76,7 +78,9 @@ private:
     TomGine::tgCamera camera;
     TomGine::tgPose pose;
     boost::mutex pose_mutex;
+    #ifndef WIN32
     ros::Time last_update;
+    #endif
 
     struct Viewport
     {

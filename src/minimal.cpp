@@ -2,20 +2,27 @@
 #include <blort/Tracker/ModelLoader.h>
 #include <blort/Tracker/Resources.h>
 #include <GL/gl.h>
-#include <GL/glut.h>
 #include <boost/bind.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 int main(int argc, char * argv[])
 {
     sf::RenderWindow window(sf::VideoMode(640, 480), "OpenGL");
+#ifdef WIN32
+    glewInit();
+#endif
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+#ifndef WIN32
     g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
+#else
+    g_Resources->SetShaderPath("C:/devel/share/blort_ros/Tracker/shader/");
+#endif
 
     TomGine::tgCamera::Parameter camPar;
     TomGine::tgCamera camera;
@@ -39,7 +46,11 @@ int main(int argc, char * argv[])
 
     Tracking::TrackerModel * model = new Tracking::TrackerModel();
     Tracking::ModelLoader loader;
+#ifndef WIN32
     loader.LoadPly(*model, "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply");
+#else
+    loader.LoadPly(*model, "C:/devel/share/blort_ros/Resources/ply/Pringles.ply");
+#endif
 
     bool running = true;
     while (running)

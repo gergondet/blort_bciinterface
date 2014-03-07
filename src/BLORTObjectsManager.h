@@ -5,12 +5,15 @@
 
 #include <boost/thread.hpp>
 
+#ifndef WIN32
 #include <ros/ros.h>
 #include <blort_ros/TrackerResults.h>
+#include <blort/blort/pal_util.h>
+#endif
 
+#include <blort/api.h>
 #include <blort/TomGine/tgCamera.h>
 #include <blort/TomGine/tgPose.h>
-#include <blort/blort/pal_util.h>
 
 class BLORTObject;
 
@@ -26,34 +29,42 @@ class BLORTObjectsManager
 {
     friend class BLORTObject;
 public:
+    #ifndef WIN32
     BLORTObjectsManager(ros::NodeHandle & nh, const std::string & shader_path, bool ignore_blort = false);
+    #else
+    BLORT_API BLORTObjectsManager(const std::string & shader_path, bool ignore_blort = true);
+    #endif
 
-    TomGine::tgPose GetObjectPosition(const std::string & obj_name);
+    BLORT_API TomGine::tgPose GetObjectPosition(const std::string & obj_name);
 
-    const TomGine::tgCamera::Parameter & GetCameraParameter() { return camPar; }
+    BLORT_API const TomGine::tgCamera::Parameter & GetCameraParameter() { return camPar; }
 
     /* Return a subrect view where all objects are located, the argument is an
      * estimation of the object bouding box in pixels */
-    BLORTSubRect GetSubRect(int object_width);
+    BLORT_API BLORTSubRect GetSubRect(int object_width);
 
 protected:
-    void AddObject(BLORTObject * object);
+    BLORT_API void AddObject(BLORTObject * object);
 
-    void RemoveObject(BLORTObject * object);
+    BLORT_API void RemoveObject(BLORTObject * object);
 
 private:
-    void ProjectPoint(const TomGine::tgPose & pose, int & u, int & v);
+    BLORT_API void ProjectPoint(const TomGine::tgPose & pose, int & u, int & v);
 
+    #ifndef WIN32
     void resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult);
+    #endif
 
-    void ignoreBLORTCallback();
+    BLORT_API void ignoreBLORTCallback();
     boost::thread ignoreBLORTth;
 
     bool ignore_blort;
     TomGine::tgCamera::Parameter camPar;
     std::map<std::string, TomGine::tgPose> positions;
     std::vector<BLORTObject *> objects;
+    #ifndef WIN32
     ros::Subscriber sub;
+    #endif
 };
 
 #endif

@@ -13,16 +13,21 @@
 #include <SFML/OpenGL.hpp>
 #include <boost/thread.hpp>
 
+#ifndef WIN32
 #include <bci-interface/Background/ROSBackground.h>
+#endif
 
 void spinner(bool & iface_closed)
 {
+#ifndef WIN32
     while(ros::ok() && !iface_closed)
     {
         ros::spinOnce();
     }
+#endif
 }
 
+#ifndef WIN32
 struct TestCameraSwitch : public bciinterface::EventHandler
 {
     TestCameraSwitch(bciinterface::ROSBackground & bg, BLORTObjectsManager & manager, BLORTObject * object) : bg(bg), manager(manager), object(object), zoom_in(false), current_video_node("camera/rgb/image_color")
@@ -66,13 +71,16 @@ struct TestCameraSwitch : public bciinterface::EventHandler
     bool zoom_in;
     std::string current_video_node;
 };
+#endif
 
 using namespace bciinterface;
 
 int main(int argc, char * argv[])
 {
+#ifndef WIN32
     ros::init(argc, argv, "bci");
     ros::NodeHandle nh;
+#endif
     bool closed = false;
 
     bool debug = false;
@@ -82,17 +90,27 @@ int main(int argc, char * argv[])
         ss << argv[1];
         ss >> debug;
     }
-    BLORTObjectsManager bomanager(nh, "/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/", debug);
 
     unsigned int width = 1280;
     unsigned int height = 800;
     unsigned int rwidth = 640;
     unsigned int rheight = 480;
     BCIInterface iface(width, height);
+    sf::Context context;
+    glewInit();
     iface.InitOculus();
 
+    #ifndef WIN32
+    BLORTObjectsManager bomanager(nh, "/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/", debug);
+    #else
+    BLORTObjectsManager bomanager("C:/devel/share/blort_ros/Tracker/shader/", true);
+    #endif
+
+#ifndef WIN32
     FontManager fm;
     FPSCounter fps_c(fm.GetDefaultFont());
+    iface.AddNonOwnedObject(&fps_c);
+#endif
 
     rwidth = rwidth*iface.GetRenderScale();
     rheight = rheight*iface.GetRenderScale();
@@ -109,15 +127,22 @@ int main(int argc, char * argv[])
     overrider.AddOverrideCommand(sf::Keyboard::Left, 4);
     iface.SetCommandOverrider(&overrider);
 
+#ifndef WIN32
     bciinterface::ROSBackground bg("/camera/rgb/image_color", rwidth, rheight, rwidth, rheight);
     iface.SetBackground(&bg);
+#endif
 
+#ifndef WIN32
     BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
+#else
+    BLORTObject * obj = new BLORTObject("can", "C:/devel/share/blort_ros/Resources/ply/Pringles.ply", "C:/devel/share/blort_ros/Resources/ply/Pringles.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
+#endif
     iface.AddObject(obj);
-    iface.AddNonOwnedObject(&fps_c);
 
+#ifndef WIN32
     TestCameraSwitch tcs(bg, bomanager, obj);
     iface.AddEventHandler(&tcs);
+#endif
 
     boost::thread th = boost::thread(boost::bind(&spinner, boost::ref(closed)));
 

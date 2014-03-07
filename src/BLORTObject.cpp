@@ -4,7 +4,9 @@ BLORTObject::BLORTObject(const std::string & object_name, const std::string & fi
 : manager(manager),
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), highlight(false),
   object_name(object_name), filename(filename), filename_hl(filename_hl), model(0), model_hl(0),
+#ifndef WIN32
   last_update(0),
+#endif
   vp((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight)
 {
     ssvep_stim = new bciinterface::SSVEPStimulus(f, screen);
@@ -60,7 +62,9 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         loader.LoadPly(*model_hl, filename_hl.c_str());
     }
 
+#ifndef WIN32
     if( (ros::Time::now() - last_update).sec < 2 )
+#endif
     {
         boost::mutex::scoped_lock(pose_mutex);
         camera.Activate();
@@ -101,7 +105,9 @@ void BLORTObject::Unhighlight()
 void BLORTObject::Update(const TomGine::tgPose & nPose)
 {
     boost::mutex::scoped_lock(pose_mutex);
+    #ifndef WIN32
     last_update = ros::Time::now();
+    #endif
     pose = nPose;
 }
 

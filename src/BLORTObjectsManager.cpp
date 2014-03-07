@@ -3,12 +3,18 @@
 
 #include "BLORTObject.h"
 
+#ifndef WIN32
 BLORTObjectsManager::BLORTObjectsManager(ros::NodeHandle & nh, const std::string & shader_path, bool ignore_blort) : ignore_blort(ignore_blort), objects(0)
+#else
+BLORTObjectsManager::BLORTObjectsManager(const std::string & shader_path, bool ignore_blort) : ignore_blort(ignore_blort), objects(0)
+#endif
 {
     g_Resources->SetShaderPath(shader_path.c_str());
     if(!ignore_blort)
     {
+        #ifndef WIN32
         sub = nh.subscribe("/blort_tracker/detection_result", 100, &BLORTObjectsManager::resultCallback, this);
+        #endif
     }
     else
     {
@@ -122,6 +128,7 @@ void BLORTObjectsManager::ProjectPoint(const TomGine::tgPose & pose, int & u, in
     v = camPar.fy*ypp + camPar.cy;
 }
 
+#ifndef WIN32
 void BLORTObjectsManager::resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult)
 {
     positions[trackerResult->obj_name.data] = pal_blort::rosPose2TgPose(trackerResult->pose.pose);
@@ -138,11 +145,16 @@ void BLORTObjectsManager::resultCallback(const blort_ros::TrackerResults::ConstP
         }
     }
 }
+#endif
 
 void BLORTObjectsManager::ignoreBLORTCallback()
 {
+    #ifndef WIN32
     ros::Rate rt(10);
     while(ros::ok())
+    #else
+    while(1)
+    #endif
     {
         for(size_t i = 0; i < objects.size(); ++i)
         {
@@ -151,6 +163,10 @@ void BLORTObjectsManager::ignoreBLORTCallback()
             pInCam.q.x = -0.565049071946; pInCam.q.y = -0.370892131447; pInCam.q.z = 0.440585349627; pInCam.q.w = 0.590798715992;
             objects[i]->Update(pInCam);
         }
+        #ifndef WIN32
         rt.sleep();
+        #else
+        Sleep(100);
+        #endif
     }
 }
