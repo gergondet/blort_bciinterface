@@ -15,6 +15,7 @@ BLORTObject::BLORTObject(const std::string & object_name, const std::string & fi
     manager.AddObject(this);
 }
 
+#ifdef HAS_CVEP_SUPPORT
 BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & sfcolor, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
 : manager(manager),
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), highlight(false),
@@ -29,6 +30,7 @@ BLORTObject::BLORTObject(const std::string & object_name, const std::string & fi
     color.a = (float)sfcolor.a/255.0f;
     manager.AddObject(this);
 }
+#endif
 
 BLORTObject::~BLORTObject()
 {
@@ -36,7 +38,9 @@ BLORTObject::~BLORTObject()
     delete model;
     delete model_hl;
     delete ssvep_stim;
+#ifdef HAS_CVEP_SUPPORT
     delete cvep_stim;
+#endif
 }
 
 void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::Clock & clock)
@@ -65,7 +69,11 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         glEnable(GL_SCISSOR_TEST);
         glScissor((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight);
         Tracking::TrackerModel * m = highlight ? model_hl : model;
+        #ifdef HAS_CVEP_SUPPORT
         if( (ssvep_stim && ssvep_stim->DisplayActive(frameCount)) || (cvep_stim && cvep_stim->GetDisplay()) )
+        #else
+        if( (ssvep_stim && ssvep_stim->DisplayActive(frameCount)) )
+        #endif
         {
             m->drawPass();
         }
