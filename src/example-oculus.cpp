@@ -96,8 +96,10 @@ int main(int argc, char * argv[])
     unsigned int rwidth = 640;
     unsigned int rheight = 480;
     BCIInterface iface(width, height);
+#ifdef WIN32
     sf::Context context;
     glewInit();
+#endif
     iface.InitOculus();
 
     #ifndef WIN32

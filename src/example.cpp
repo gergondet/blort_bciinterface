@@ -101,8 +101,10 @@ int main(int argc, char * argv[])
     int iwidth = 800;
     int iheight = 600;
     BCIInterface iface(wwidth, wheight);
+#ifdef WIN32
     sf::Context context;
     glewInit();
+#endif
     UDPReceiver * receiver = new UDPReceiver(1111);
     SimpleInterpreter * interpreter = new SimpleInterpreter();
     iface.SetCommandReceiver(receiver);
