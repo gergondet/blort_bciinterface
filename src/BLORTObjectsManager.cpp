@@ -129,7 +129,7 @@ void BLORTObjectsManager::ProjectPoint(const TomGine::tgPose & pose, int & u, in
 }
 
 #ifndef WIN32
-void BLORTObjectsManager::resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult)
+void BLORTObjectsManager::resultCallback(const blort_ros_msgs::TrackerResults::ConstPtr & trackerResult)
 {
     positions[trackerResult->obj_name.data] = pal_blort::rosPose2TgPose(trackerResult->pose.pose);
     for(size_t i = 0; i < objects.size(); ++i)

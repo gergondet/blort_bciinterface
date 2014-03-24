@@ -7,7 +7,7 @@
 
 #ifndef WIN32
 #include <ros/ros.h>
-#include <blort_ros/TrackerResults.h>
+#include <blort_ros_msgs/TrackerResults.h>
 #include <blort/blort/pal_util.h>
 #endif
 
@@ -52,7 +52,7 @@ private:
     BLORT_API void ProjectPoint(const TomGine::tgPose & pose, int & u, int & v);
 
     #ifndef WIN32
-    void resultCallback(const blort_ros::TrackerResults::ConstPtr & trackerResult);
+    void resultCallback(const blort_ros_msgs::TrackerResults::ConstPtr & trackerResult);
     #endif
 
     BLORT_API void ignoreBLORTCallback();
