@@ -9,9 +9,11 @@
 #include <ros/ros.h>
 #include <blort_ros_msgs/TrackerResults.h>
 #include <blort/blort/pal_util.h>
+#define BLORT_API
+#else
+#include <blort/api.h>
 #endif
 
-#include <blort/api.h>
 #include <blort/TomGine/tgCamera.h>
 #include <blort/TomGine/tgPose.h>
 

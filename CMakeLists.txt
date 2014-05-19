@@ -1,126 +1,43 @@
 cmake_minimum_required(VERSION 2.4.6)
+project(blort_bciinterface)
 
-IF(WIN32)
+find_package(catkin REQUIRED COMPONENTS roscpp blort blort_ros bciinterface_rosbackground)
+include_directories(${catkin_INCLUDE_DIRS})
 
-PROJECT(blort_bciinterface)
+find_package(Boost REQUIRED COMPONENTS thread)
+include_directories(${Boost_INCLUDE_DIRS})
 
-INCLUDE_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/include)
-LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/lib)
+include(FindPkgConfig)
+pkg_check_modules(BCIINTERFACE bci-interface)
+include_directories(${BCIINTERFACE_INCLUDE_DIRS})
+link_directories(${BCIINTERFACE_LIBRARY_DIRS})
 
-SET(CVEP_STIMULUS_FOUND 0)
-FIND_PATH(HAS_CVEP_STIMULUS name CVEPStimulus.h PATHS ${CMAKE_INSTALL_PREFIX}/include/bci-interface/DisplayObject)
-IF(HAS_CVEP_STIMULUS STREQUAL "HAS_CVEP_STIMULUS-NOTFOUND")
-MESSAGE("Building without CVEP stimuli support")
-ELSE()
-MESSAGE(STATUS "Building with CVEP stimuli support")
-ADD_DEFINITIONS("-DHAS_CVEP_SUPPORT")
-SET(CVEP_STIMULUS_FOUND 1)
-ENDIF()
-IF(CVEP_STIMULUS_FOUND EQUAL 1)
-SET(CVEP_LIB "cvep-stimuli.lib;")
-ELSE()
-SET(CVEP_LIB "")
-ENDIF()
+set(CVEP_STIMULUS_FOUND 0)
+find_path(HAS_CVEP_STIMULUS NAME CVEPStimulus.h PATHS ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
+if(HAS_CVEP_STIMULUS STREQUAL "HAS_CVEP_STIMULUS-NOTFOUND")
+message("Building without CVEP stimuli support")
+else()
+message(STATUS "Building with CVEP stimuli support")
+add_definitions("-DHAS_CVEP_SUPPORT")
+set(CVEP_STIMULUS_FOUND 1)
+endif()
+if(CVEP_STIMULUS_FOUND EQUAL 1)
+set(CVEP_LIB cvep-stimuli)
+else()
+set(CVEP_LIB "")
+endif()
 
-add_library(blortobject SHARED src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
-target_link_libraries(blortobject "${CVEP_LIB}bci-interface.lib;sfml-oculus.lib;sfml-graphics.lib;sfml-window.lib;sfml-system.lib;module_tracker.lib;module_tomgine.lib;OpenGL32.lib;")
-
-LINK_DIRECTORIES(${CMAKE_BINARY_DIR})
+add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
+target_link_libraries(blortobject ${CVEP_LIB} ${BCIINTERFACE_LIBRARIES} ${catkin_LIBRARIES} module_tomgine module_tracker)
 
 add_executable(example src/example.cpp)
-target_link_libraries(example "blortobject.lib;${CVEP_LIB}bci-interface.lib;sfml-oculus.lib;sfml-graphics.lib;sfml-window.lib;sfml-system.lib;module_tracker.lib;module_tomgine.lib;OpenGL32.lib;glew32.lib;")
+target_link_libraries(example blortobject rosbackground ${catkin_LIBRARIES} ${Boost_LIBRARIES} sfml-graphics)
 
 add_executable(example-oculus src/example-oculus.cpp)
-target_link_libraries(example-oculus "blortobject.lib;${CVEP_LIB}bci-interface.lib;sfml-oculus.lib;sfml-graphics.lib;sfml-window.lib;sfml-system.lib;module_tracker.lib;module_tomgine.lib;OpenGL32.lib;glew32.lib;")
+target_link_libraries(example-oculus blortobject rosbackground ${catkin_LIBRARIES} ${Boost_LIBRARIES} sfml-graphics)
 
 add_executable(minimal src/minimal.cpp)
-target_link_libraries(minimal "module_tracker.lib;module_tomgine.lib;sfml-graphics.lib;sfml-window.lib;sfml-system.lib;OpenGL32.lib;glew32.lib;")
-
-INSTALL(FILES src/BLORTObject.h src/BLORTObjectsManager.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include/bci-interface/DisplayObject)
-INSTALL(TARGETS blortobject 
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-
-ELSE(WIN32)
-
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-set(ROS_BUILD_TYPE RelWithDebInfo)
-
-rosbuild_init()
-
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-
-INCLUDE(FindPkgConfig)
-pkg_check_modules(BCIINTERFACE bci-interface)
-IF(BCIINTERFACE_FOUND)
-EXEC_PROGRAM(${PKG_CONFIG_EXECUTABLE} ARGS bci-interface --cflags
-  OUTPUT_VARIABLE BCIINTERFACE_CFLAGS)
-MESSAGE(STATUS "BCIINTERFACE_CFLAGS: ${BCIINTERFACE_CFLAGS}")
-EXEC_PROGRAM(${PKG_CONFIG_EXECUTABLE} ARGS bci-interface --libs
-  OUTPUT_VARIABLE BCIINTERFACE_LIBS)
-MESSAGE(STATUS "BCIINTERFACE_LIBS: ${BCIINTERFACE_LIBS}")
-ELSE(BCIINTERFACE_FOUND)
-MESSAGE(STATUS "bci-interface not found")
-ENDIF(BCIINTERFACE_FOUND)
-
-SET(CVEP_STIMULUS_FOUND 0)
-FIND_PATH(HAS_CVEP_STIMULUS name CVEPStimulus.h PATHS ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
-IF(HAS_CVEP_STIMULUS STREQUAL "HAS_CVEP_STIMULUS-NOTFOUND")
-MESSAGE("Building without CVEP stimuli support")
-ELSE()
-MESSAGE(STATUS "Building with CVEP stimuli support")
-ADD_DEFINITIONS("-DHAS_CVEP_SUPPORT")
-SET(CVEP_STIMULUS_FOUND 1)
-ENDIF()
-IF(CVEP_STIMULUS_FOUND EQUAL 1)
-SET(CVEP_LIB cvep-stimuli)
-ELSE()
-SET(CVEP_LIB "")
-ENDIF()
-
-#uncomment if you have defined messages
-#rosbuild_genmsg()
-#uncomment if you have defined services
-#rosbuild_gensrv()
-
-#common commands for building c++ executables and libraries
-#rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
-#target_link_libraries(${PROJECT_NAME} another_library)
-#rosbuild_add_executable(example examples/example.cpp)
-#target_link_libraries(example ${PROJECT_NAME})
-
-ADD_DEFINITIONS(${BCIINTERFACE_CFLAGS})
-LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/lib)
-rosbuild_add_boost_directories()
-
-LINK_DIRECTORIES(${BCIINTERFACE_LIBRARY_DIRS})
-
-rosbuild_add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
-target_link_libraries(blortobject ${CVEP_LIB} bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine GL)
-
-rosbuild_add_executable(example src/example.cpp)
-target_link_libraries(example blortobject rosbackground bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine)
-rosbuild_link_boost(example thread)
-
-rosbuild_add_executable(example-oculus src/example-oculus.cpp)
-target_link_libraries(example-oculus blortobject rosbackground bci-interface sfml-oculus sfml-graphics sfml-window sfml-system module_tracker module_tomgine)
-rosbuild_link_boost(example-oculus thread)
-
-rosbuild_add_executable(minimal src/minimal.cpp)
-target_link_libraries(minimal module_tracker module_tomgine sfml-graphics sfml-window sfml-system GL)
-rosbuild_link_boost(minimal thread)
+target_link_libraries(minimal ${catkin_LIBRARIES} ${Boost_LIBRARIES} sfml-graphics sfml-window sfml-system GL module_tomgine module_tracker)
 
 INSTALL(FILES src/BLORTObject.h src/BLORTObjectsManager.h DESTINATION ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
 INSTALL(TARGETS blortobject DESTINATION ${BCIINTERFACE_LIBRARY_DIRS})
-ENDIF(WIN32)
