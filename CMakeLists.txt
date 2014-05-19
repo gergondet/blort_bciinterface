@@ -27,6 +27,8 @@ else()
 set(CVEP_LIB "")
 endif()
 
+catkin_package()
+
 add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
 target_link_libraries(blortobject ${CVEP_LIB} ${BCIINTERFACE_LIBRARIES} ${catkin_LIBRARIES} module_tomgine module_tracker)
 
