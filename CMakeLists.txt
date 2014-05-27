@@ -9,7 +9,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 include(FindPkgConfig)
 pkg_check_modules(BCIINTERFACE bci-interface)
-if(${BCIINTERFACE_LIBRARY_DIRS})
+if(NOT "${BCIINTERFACE_LIBRARY_DIRS}" STREQUAL "")
 include_directories(${BCIINTERFACE_INCLUDE_DIRS})
 link_directories(${BCIINTERFACE_LIBRARY_DIRS})
 else()
