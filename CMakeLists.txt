@@ -9,8 +9,16 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 include(FindPkgConfig)
 pkg_check_modules(BCIINTERFACE bci-interface)
+if(${BCIINTERFACE_LIBRARY_DIRS})
 include_directories(${BCIINTERFACE_INCLUDE_DIRS})
 link_directories(${BCIINTERFACE_LIBRARY_DIRS})
+else()
+set(BCIINTERFACE_INCLUDE_DIRS /usr/include)
+set(BCIINTERFACE_LIBRARY_DIRS /usr/lib)
+endif()
+
+
+include_directories(include)
 
 set(CVEP_STIMULUS_FOUND 0)
 find_path(HAS_CVEP_STIMULUS NAME CVEPStimulus.h PATHS ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
@@ -27,7 +35,10 @@ else()
 set(CVEP_LIB "")
 endif()
 
-catkin_package()
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES blortobject
+)
 
 add_library(blortobject src/BLORTObject.cpp src/BLORTObjectsManager.cpp)
 target_link_libraries(blortobject ${CVEP_LIB} ${BCIINTERFACE_LIBRARIES} ${catkin_LIBRARIES} module_tomgine module_tracker)
@@ -41,5 +52,5 @@ target_link_libraries(example-oculus blortobject rosbackground ${catkin_LIBRARIE
 add_executable(minimal src/minimal.cpp)
 target_link_libraries(minimal ${catkin_LIBRARIES} ${Boost_LIBRARIES} sfml-graphics sfml-window sfml-system GL module_tomgine module_tracker)
 
-INSTALL(FILES src/BLORTObject.h src/BLORTObjectsManager.h DESTINATION ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
+INSTALL(FILES include/bci-interface/DisplayObject/BLORTObject.h include/bci-interface/DisplayObject/BLORTObjectsManager.h DESTINATION ${BCIINTERFACE_INCLUDE_DIRS}/bci-interface/DisplayObject)
 INSTALL(TARGETS blortobject DESTINATION ${BCIINTERFACE_LIBRARY_DIRS})

@@ -1,4 +1,4 @@
-#include "BLORTObject.h"
+#include "bci-interface/DisplayObject/BLORTObject.h"
 
 BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & sfcolor, int f, int screen, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
 : manager(manager),

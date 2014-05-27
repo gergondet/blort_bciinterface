@@ -1,7 +1,6 @@
 #include <blort/Tracker/Resources.h>
-#include "BLORTObjectsManager.h"
-
-#include "BLORTObject.h"
+#include "bci-interface/DisplayObject/BLORTObjectsManager.h"
+#include "bci-interface/DisplayObject/BLORTObject.h"
 
 #ifndef WIN32
 BLORTObjectsManager::BLORTObjectsManager(ros::NodeHandle & nh, const std::string & shader_path, bool ignore_blort) : ignore_blort(ignore_blort), objects(0)

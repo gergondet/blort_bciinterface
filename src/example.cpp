@@ -1,11 +1,10 @@
-#include "BLORTObject.h"
-#include "BLORTObjectsManager.h"
-
 #include <bci-interface/BCIInterface.h>
 #include <bci-interface/EventHandler.h>
 #include <bci-interface/Background/BufferBG.h>
 #include <bci-interface/CommandReceiver/UDPReceiver.h>
 #include <bci-interface/CommandInterpreter/SimpleInterpreter.h>
+#include "bci-interface/DisplayObject/BLORTObject.h"
+#include "bci-interface/DisplayObject/BLORTObjectsManager.h"
 #include <bci-interface/CommandOverrider.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
