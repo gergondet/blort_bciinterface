@@ -122,20 +122,27 @@ void BLORTObjectsManager::ProjectPoint(const TomGine::tgPose & pose, int & u, in
     double yp = pose.t.y/pose.t.z;
     double r2 = xp*xp + yp*yp;
     double xpp = xp*(1 + r2*(camPar.k1 + r2*(camPar.k2 + r2*camPar.k3))) + 2*camPar.p1*xp*yp + camPar.p2*(r2 + 2*xp*xp);
-    double ypp = yp*(1 + r2*(camPar.k1 + r2*(camPar.k2 + r2*camPar.k3))) + camPar.p1*(r2 + 2*yp*yp) + 2*camPar.p2*xp*yp; 
+    double ypp = yp*(1 + r2*(camPar.k1 + r2*(camPar.k2 + r2*camPar.k3))) + camPar.p1*(r2 + 2*yp*yp) + 2*camPar.p2*xp*yp;
     u = camPar.fx*xpp + camPar.cx;
     v = camPar.fy*ypp + camPar.cy;
 }
 
 #ifndef WIN32
-void BLORTObjectsManager::resultCallback(const blort_ros_msgs::TrackerResults::ConstPtr & trackerResult)
+void BLORTObjectsManager::resultCallback(const blort_msgs::TrackerResults::ConstPtr & trackerResult)
 {
-    positions[trackerResult->obj_name.data] = pal_blort::rosPose2TgPose(trackerResult->pose.pose);
+    TomGine::tgPose pInCam;
+    pInCam.t.x = trackerResult->pose.pose.position.x;
+    pInCam.t.y = trackerResult->pose.pose.position.y;
+    pInCam.t.z = trackerResult->pose.pose.position.z;
+    pInCam.q.x = trackerResult->pose.pose.orientation.x;
+    pInCam.q.y = trackerResult->pose.pose.orientation.y;
+    pInCam.q.z = trackerResult->pose.pose.orientation.z;
+    pInCam.q.w = trackerResult->pose.pose.orientation.w;
+    positions[trackerResult->obj_name.data] = pInCam;
     for(size_t i = 0; i < objects.size(); ++i)
     {
         if( objects[i]->getName() == (trackerResult->obj_name.data) )
         {
-            TomGine::tgPose pInCam = pal_blort::rosPose2TgPose(trackerResult->pose.pose);
             pInCam.q.x = -pInCam.q.x;
             pInCam.q.y = -pInCam.q.y;
             pInCam.q.z = -pInCam.q.z;
