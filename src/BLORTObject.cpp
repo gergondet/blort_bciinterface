@@ -9,6 +9,7 @@ BLORTObject::BLORTObject(const std::string & object_name, const std::string & fi
 #endif
   vp((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight)
 {
+    cvep_stim = 0;
     ssvep_stim = new bciinterface::SSVEPStimulus(f, screen);
     color.r = (float)sfcolor.r/255.0f;
     color.g = (float)sfcolor.g/255.0f;
@@ -25,6 +26,7 @@ BLORTObject::BLORTObject(const std::string & object_name, const std::string & fi
   last_update(0),
   vp((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight)
 {
+    ssvep_stim = 0;
     cvep_stim = new bciinterface::CVEPStimulus(cvep_manager);
     color.r = (float)sfcolor.r/255.0f;
     color.g = (float)sfcolor.g/255.0f;

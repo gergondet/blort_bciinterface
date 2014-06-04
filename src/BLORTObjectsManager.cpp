@@ -155,24 +155,24 @@ void BLORTObjectsManager::resultCallback(const blort_msgs::TrackerResults::Const
 
 void BLORTObjectsManager::ignoreBLORTCallback()
 {
-    #ifndef WIN32
-    ros::Rate rt(10);
-    while(ros::ok())
-    #else
-    while(1)
-    #endif
-    {
-        for(size_t i = 0; i < objects.size(); ++i)
-        {
-            TomGine::tgPose pInCam;
-            pInCam.t.x = 0.134408188062; pInCam.t.y = -0.00268787337344; pInCam.t.z = 0.417594547483;
-            pInCam.q.x = -0.565049071946; pInCam.q.y = -0.370892131447; pInCam.q.z = 0.440585349627; pInCam.q.w = 0.590798715992;
-            objects[i]->Update(pInCam);
-        }
-        #ifndef WIN32
-        rt.sleep();
-        #else
-        Sleep(100);
-        #endif
-    }
+    //#ifndef WIN32
+    //ros::Rate rt(10);
+    //while(ros::ok())
+    //#else
+    //while(1)
+    //#endif
+    //{
+    //    for(size_t i = 0; i < objects.size(); ++i)
+    //    {
+    //        TomGine::tgPose pInCam;
+    //        pInCam.t.x = 0.134408188062; pInCam.t.y = -0.00268787337344; pInCam.t.z = 0.417594547483;
+    //        pInCam.q.x = -0.565049071946; pInCam.q.y = -0.370892131447; pInCam.q.z = 0.440585349627; pInCam.q.w = 0.590798715992;
+    //        objects[i]->Update(pInCam);
+    //    }
+    //    #ifndef WIN32
+    //    rt.sleep();
+    //    #else
+    //    Sleep(100);
+    //    #endif
+    //}
 }
