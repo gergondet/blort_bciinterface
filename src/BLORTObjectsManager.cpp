@@ -94,13 +94,13 @@ BLORTSubRect BLORTObjectsManager::GetSubRect(int object_size)
 void BLORTObjectsManager::AddObject(BLORTObject * object)
 {
     objects.push_back(object);
-    if(ignore_blort)
-    {
-        TomGine::tgPose defPose;
-        defPose.t.x = 0.134408188062; defPose.t.y = -0.00268787337344; defPose.t.z = 0.417594547483;
-        defPose.q.x = -0.565049071946; defPose.q.y = -0.370892131447; defPose.q.z = 0.440585349627; defPose.q.w = 0.590798715992;
-        positions[object->getName()] = defPose;
-    }
+//    if(ignore_blort)
+//    {
+//        TomGine::tgPose defPose;
+//        defPose.t.x = 0.134408188062; defPose.t.y = -0.00268787337344; defPose.t.z = 0.417594547483;
+//        defPose.q.x = -0.565049071946; defPose.q.y = -0.370892131447; defPose.q.z = 0.440585349627; defPose.q.w = 0.590798715992;
+//        positions[object->getName()] = defPose;
+//    }
 }
 
 void BLORTObjectsManager::RemoveObject(BLORTObject * object)

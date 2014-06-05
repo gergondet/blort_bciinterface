@@ -81,12 +81,28 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         if( (ssvep_stim && ssvep_stim->DisplayActive(frameCount)) )
         #endif
         {
-            m->drawPass();
+            if(cvep_stim)
+            {
+                glDisable(GL_TEXTURE_2D);
+                glColor4f(color.r, color.g, color.b, color.a);
+                m->drawFaces();
+            }
+            else
+            {
+                m->drawPass();
+            }
         }
         else
         {
             glDisable(GL_TEXTURE_2D);
-            glColor4f(color.r, color.g, color.b, color.a);
+            if(cvep_stim)
+            {
+                glColor4f(0,0,0, color.a);
+            }
+            else
+            {
+                glColor4f(color.r, color.g, color.b, color.a);
+            }
             m->drawFaces();
         }
         glDisable(GL_SCISSOR_TEST);
