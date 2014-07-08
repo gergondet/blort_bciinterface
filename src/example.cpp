@@ -12,6 +12,7 @@
 
 #ifndef WIN32
 #include <bci-interface/Background/ROSBackground.h>
+#include <ros/package.h>
 #endif
 
 void spinner(bool & iface_closed)
@@ -117,19 +118,19 @@ int main(int argc, char * argv[])
     iface.SetCommandOverrider(&overrider);
 
 #ifndef WIN32
-    BLORTObjectsManager bomanager(nh, "/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/", debug);
+    BLORTObjectsManager bomanager(nh, ros::package::getPath("blort_ros") + "/Tracker/shader/", debug);
 #else
     BLORTObjectsManager bomanager("C:/devel/share/blort_ros/Tracker/shader/", true);
 #endif
 
 
 #ifndef WIN32
-    bciinterface::ROSBackground bg("/camera/rgb/image_raw", wwidth, wheight, iwidth, iheight);
+    bciinterface::ROSBackground bg(nh, "/camera/rgb/image_raw", wwidth, wheight, iwidth, iheight);
     iface.SetBackground(&bg);
 #endif
 
 #ifndef WIN32
-    BLORTObject * obj = new BLORTObject("can", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply", "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can_hl.ply", sf::Color(255, 0, 0, 255), 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
+    BLORTObject * obj = new BLORTObject("coke", ros::package::getPath("blort_ros") + "/Resources/ply/coke.ply", ros::package::getPath("blort_ros") + "/Resources/ply/coke.ply", sf::Color(255, 0, 0, 255), 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
 #else
     BLORTObject * obj = new BLORTObject("can", "C:/devel/share/blort_ros/Resources/ply/Pringles.ply", "C:/devel/share/blort_ros/Resources/ply/Pringles.ply", sf::Color(255, 0, 0, 255), 1, 60, wwidth, wheight, iwidth, iheight, bomanager);
 #endif

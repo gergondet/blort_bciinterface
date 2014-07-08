@@ -19,7 +19,7 @@ int main(int argc, char * argv[])
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 #ifndef WIN32
-    g_Resources->SetShaderPath("/home/gergondet/ros/perception_blort/blort_ros/Tracker/shader/");
+    g_Resources->SetShaderPath("/home/gergondet/catkin_ws/src/perception_blort/blort_ros/Tracker/shader/");
 #else
     g_Resources->SetShaderPath("C:/devel/share/blort_ros/Tracker/shader/");
 #endif
@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
     Tracking::TrackerModel * model = new Tracking::TrackerModel();
     Tracking::ModelLoader loader;
 #ifndef WIN32
-    loader.LoadPly(*model, "/home/gergondet/ros/perception_blort/blort_ros/Resources/ply/can.ply");
+    loader.LoadPly(*model, "/home/gergondet/catkin_ws/src/perception_blort/blort_ros/Resources/ply/coke.ply");
 #else
     loader.LoadPly(*model, "C:/devel/share/blort_ros/Resources/ply/Pringles.ply");
 #endif
