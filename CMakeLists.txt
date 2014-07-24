@@ -3,6 +3,7 @@ project(blort_bciinterface)
 
 find_package(catkin REQUIRED COMPONENTS roscpp blort blort_ros bciinterface_rosbackground)
 include_directories(${catkin_INCLUDE_DIRS})
+link_directories(${catkin_LIBRARY_DIRS})
 
 find_package(Boost REQUIRED COMPONENTS thread)
 include_directories(${Boost_INCLUDE_DIRS})

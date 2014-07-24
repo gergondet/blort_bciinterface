@@ -9,7 +9,9 @@ BLORTObject::BLORTObject(const std::string & object_name, const std::string & fi
 #endif
   vp((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight)
 {
+#ifdef HAS_CVEP_SUPPORT
     cvep_stim = 0;
+#endif
     ssvep_stim = new bciinterface::SSVEPStimulus(f, screen);
     color.r = (float)sfcolor.r/255.0f;
     color.g = (float)sfcolor.g/255.0f;
@@ -81,6 +83,7 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         if( (ssvep_stim && ssvep_stim->DisplayActive(frameCount)) )
         #endif
         {
+            #ifdef HAS_CVEP_SUPPORT
             if(cvep_stim)
             {
                 glDisable(GL_TEXTURE_2D);
@@ -88,6 +91,7 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
                 m->drawFaces();
             }
             else
+            #endif
             {
                 m->drawPass();
             }
@@ -95,11 +99,13 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         else
         {
             glDisable(GL_TEXTURE_2D);
+            #ifdef HAS_CVEP_SUPPORT
             if(cvep_stim)
             {
                 glColor4f(0,0,0, color.a);
             }
             else
+            #endif
             {
                 glColor4f(color.r, color.g, color.b, color.a);
             }
