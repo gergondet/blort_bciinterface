@@ -136,9 +136,9 @@ int main(int argc, char * argv[])
 #endif
 
 #ifndef WIN32
-    BLORTObject * obj = new BLORTObject("Pringles", ros::package::getPath("blort_ros") + "/Resources/ply/Pringles.ply", ros::package::getPath("blort_ros") + "/Resources/ply/Pringles.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
+    BLORTObject * obj = new BLORTObject("Pringles", ros::package::getPath("blort_ros") + "/Resources/ply/Pringles.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
 #else
-    BLORTObject * obj = new BLORTObject("can", "C:/devel/share/blort_ros/Resources/ply/Pringles.ply", "C:/devel/share/blort_ros/Resources/ply/Pringles.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
+    BLORTObject * obj = new BLORTObject("can", "C:/devel/share/blort_ros/Resources/ply/Pringles.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
 #endif
     iface.AddObject(obj);
 

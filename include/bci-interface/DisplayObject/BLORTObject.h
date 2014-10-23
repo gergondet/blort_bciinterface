@@ -23,10 +23,10 @@
 class BLORTObject : public bciinterface::DisplayObject
 {
 public:
-    BLORT_API BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, int frequency, int screenFrequency, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
+    BLORT_API BLORTObject(const std::string & object_name, const std::string & filename, const sf::Color & color, int frequency, int screenFrequency, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
 
     #ifdef HAS_CVEP_SUPPORT
-    BLORT_API BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & color, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
+    BLORT_API BLORTObject(const std::string & object_name, const std::string & filename, const sf::Color & color, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager);
     #endif
 
     BLORT_API ~BLORTObject();
@@ -64,6 +64,26 @@ private:
         float a;
     };
 
+    struct BLORTObjectBoundingBox
+    {
+      float xmin; float xmax;
+      float ymin; float ymax;
+      float zmin; float zmax;
+      GLuint list;
+
+      BLORTObjectBoundingBox() :
+        xmin(1e6), xmax(-1e6),
+        ymin(1e6), ymax(-1e6),
+        zmin(1e6), zmax(-1e6),
+        list(0)
+      {}
+
+      ~BLORTObjectBoundingBox();
+
+      void Init();
+      void Draw();
+    };
+
     int wwidth;
     int wheight;
     int iwidth;
@@ -71,9 +91,8 @@ private:
     bool highlight;
     std::string object_name;
     std::string filename;
-    std::string filename_hl;
     Tracking::TrackerModel * model;
-    Tracking::TrackerModel * model_hl;
+    BLORTObjectBoundingBox bb;
     BLORTObjectColor color;
     TomGine::tgCamera camera;
     TomGine::tgPose pose;

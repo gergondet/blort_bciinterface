@@ -1,9 +1,9 @@
 #include "bci-interface/DisplayObject/BLORTObject.h"
 
-BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & sfcolor, int f, int screen, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
+BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const sf::Color & sfcolor, int f, int screen, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
 : manager(manager),
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), highlight(false),
-  object_name(object_name), filename(filename), filename_hl(filename_hl), model(0), model_hl(0),
+  object_name(object_name), filename(filename), model(0),
 #ifndef WIN32
   last_update(0),
 #endif
@@ -21,10 +21,10 @@ BLORTObject::BLORTObject(const std::string & object_name, const std::string & fi
 }
 
 #ifdef HAS_CVEP_SUPPORT
-BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const std::string & filename_hl, const sf::Color & sfcolor, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
+BLORTObject::BLORTObject(const std::string & object_name, const std::string & filename, const sf::Color & sfcolor, bciinterface::CVEPManager & cvep_manager, int wwidth, int wheight, int iwidth, int iheight, BLORTObjectsManager & manager)
 : manager(manager),
   wwidth(wwidth), wheight(wheight), iwidth(iwidth), iheight(iheight), highlight(false),
-  object_name(object_name), filename(filename), filename_hl(filename_hl), model(0), model_hl(0),
+  object_name(object_name), filename(filename), model(0),
   last_update(0),
   vp((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight)
 {
@@ -42,11 +42,86 @@ BLORTObject::~BLORTObject()
 {
     manager.RemoveObject(this);
     delete model;
-    delete model_hl;
     delete ssvep_stim;
 #ifdef HAS_CVEP_SUPPORT
     delete cvep_stim;
 #endif
+}
+
+BLORTObject::BLORTObjectBoundingBox::~BLORTObjectBoundingBox()
+{
+  glDeleteLists(list, 1);
+}
+
+void BLORTObject::BLORTObjectBoundingBox::Init()
+{
+  list = glGenLists(1);
+  glNewList(list, GL_COMPILE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0,1,0,0.25);
+    glLineWidth(4.0f);
+    glBegin(GL_LINE_LOOP);
+      glVertex3f(xmin, ymin, zmin); /*1*/
+      glVertex3f(xmin, ymin, zmax); /*2*/
+      glVertex3f(xmax, ymin, zmax); /*3*/
+      glVertex3f(xmax, ymin, zmin); /*4*/
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+      glVertex3f(xmin, ymax, zmin); /*5*/
+      glVertex3f(xmin, ymax, zmax); /*6*/
+      glVertex3f(xmax, ymax, zmax); /*7*/
+      glVertex3f(xmax, ymax, zmin); /*8*/
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+      glVertex3f(xmax, ymin, zmax);
+      glVertex3f(xmax, ymin, zmin);
+      glVertex3f(xmax, ymax, zmin);
+      glVertex3f(xmax, ymax, zmax);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+      glVertex3f(xmin, ymin, zmin);
+      glVertex3f(xmin, ymin, zmax);
+      glVertex3f(xmin, ymax, zmax);
+      glVertex3f(xmin, ymax, zmin);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+      glVertex3f(xmin, ymin, zmin); /*1*/
+      glVertex3f(xmax, ymin, zmin); /*4*/
+      glVertex3f(xmax, ymax, zmin); /*8*/
+      glVertex3f(xmin, ymax, zmin); /*5*/
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+      glVertex3f(xmin, ymin, zmax); /*2*/
+      glVertex3f(xmax, ymin, zmax); /*3*/
+      glVertex3f(xmax, ymax, zmax); /*7*/
+      glVertex3f(xmin, ymax, zmax); /*6*/
+    glEnd();
+  glEndList();
+}
+
+void BLORTObject::BLORTObjectBoundingBox::Draw()
+{
+  mat4 mv;
+  mat3 rot;
+  vec3 v_cam_object;
+  float s = -0.001f;
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+
+  rot[0] = mv[0]; rot[1] = mv[4]; rot[2] = mv[8];
+  rot[3] = mv[1]; rot[4] = mv[5]; rot[5] = mv[9];
+  rot[6] = mv[2]; rot[7] = mv[6]; rot[8] = mv[10];
+
+  v_cam_object[0] = mv[12];
+  v_cam_object[1] = mv[13];
+  v_cam_object[2] = mv[14];
+
+  v_cam_object = rot * v_cam_object * s;
+
+  glPushMatrix();
+  glTranslatef(v_cam_object[0], v_cam_object[1], v_cam_object[2]);
+  glCallList(list);
+  glPopMatrix();
 }
 
 void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::Clock & clock)
@@ -59,11 +134,18 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         pose.Rotate(0.0f, 0.0f, 0.5f);
         model = new Tracking::TrackerModel();
         model->setBFC(false);
-        model_hl = new Tracking::TrackerModel();
-        model_hl->setBFC(false);
         Tracking::ModelLoader loader;
         loader.LoadPly(*model, filename.c_str());
-        loader.LoadPly(*model_hl, filename_hl.c_str());
+        for(size_t i = 0; i < model->m_vertices.size(); ++i)
+        {
+          if(model->m_vertices[i].pos.x < bb.xmin) bb.xmin = model->m_vertices[i].pos.x;
+          if(model->m_vertices[i].pos.x > bb.xmax) bb.xmax = model->m_vertices[i].pos.x;
+          if(model->m_vertices[i].pos.y < bb.ymin) bb.ymin = model->m_vertices[i].pos.y;
+          if(model->m_vertices[i].pos.y > bb.ymax) bb.ymax = model->m_vertices[i].pos.y;
+          if(model->m_vertices[i].pos.z < bb.zmin) bb.zmin = model->m_vertices[i].pos.z;
+          if(model->m_vertices[i].pos.z > bb.zmax) bb.zmax = model->m_vertices[i].pos.z;
+        }
+        bb.Init();
     }
 
 #ifndef WIN32
@@ -76,7 +158,7 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
         glViewport(vp.left, vp.bottom, vp.width, vp.height);
         glEnable(GL_SCISSOR_TEST);
         glScissor((wwidth - iwidth)/2, (wheight - iheight)/2, iwidth, iheight);
-        Tracking::TrackerModel * m = highlight ? model_hl : model;
+        Tracking::TrackerModel * m = model;
         #ifdef HAS_CVEP_SUPPORT
         if( (ssvep_stim && ssvep_stim->DisplayActive(frameCount)) || (cvep_stim && cvep_stim->GetDisplay()) )
         #else
@@ -110,6 +192,10 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
                 glColor4f(color.r, color.g, color.b, color.a);
             }
             m->drawFaces();
+        }
+        if(highlight)
+        {
+          bb.Draw();
         }
         glDisable(GL_SCISSOR_TEST);
         pose.Deactivate();
