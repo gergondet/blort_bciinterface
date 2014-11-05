@@ -130,8 +130,6 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
     {
         /* TODO Get this from camera_info topic */
         camera.Load(manager.GetCameraParameter());
-        pose.t = vec3(0.0, 0.1, 0.0);
-        pose.Rotate(0.0f, 0.0f, 0.5f);
         model = new Tracking::TrackerModel();
         model->setBFC(false);
         Tracking::ModelLoader loader;
@@ -149,7 +147,7 @@ void BLORTObject::Display(sf::RenderTarget * app, unsigned int frameCount, sf::C
     }
 
 #ifndef WIN32
-    if( (ros::Time::now() - last_update).sec < 2 )
+    //if( (ros::Time::now() - last_update).sec < 2 )
 #endif
     {
         boost::mutex::scoped_lock(pose_mutex);
