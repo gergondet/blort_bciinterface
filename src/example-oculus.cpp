@@ -92,16 +92,14 @@ int main(int argc, char * argv[])
         ss >> debug;
     }
 
-    unsigned int width = 1280;
-    unsigned int height = 800;
-    unsigned int rwidth = 640;
-    unsigned int rheight = 480;
-    BCIInterface iface(width, height);
+    BCIInterface iface;
 #ifdef WIN32
     sf::Context context;
     glewInit();
 #endif
     iface.InitOculus();
+    unsigned int rwidth = iface.GetWidth();
+    unsigned int rheight = iface.GetHeight();
 
     #ifndef WIN32
     BLORTObjectsManager bomanager(nh, ros::package::getPath("blort_ros") + "/Tracker/shader/", debug);
@@ -114,9 +112,6 @@ int main(int argc, char * argv[])
     FPSCounter fps_c(fm.GetDefaultFont());
     iface.AddNonOwnedObject(&fps_c);
 #endif
-
-    rwidth = rwidth*iface.GetRenderScale();
-    rheight = rheight*iface.GetRenderScale();
 
     UDPReceiver * receiver = new UDPReceiver(1111);
     SimpleInterpreter * interpreter = new SimpleInterpreter();
@@ -136,7 +131,7 @@ int main(int argc, char * argv[])
 #endif
 
 #ifndef WIN32
-    BLORTObject * obj = new BLORTObject("Pringles", ros::package::getPath("blort_ros") + "/Resources/ply/Pringles.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
+    BLORTObject * obj = new BLORTObject("coke", ros::package::getPath("blort_ros") + "/Resources/ply/coke.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
 #else
     BLORTObject * obj = new BLORTObject("can", "C:/devel/share/blort_ros/Resources/ply/Pringles.ply", sf::Color(255, 0, 0, 255), 1, 60, rwidth, rheight, rwidth, rheight, bomanager);
 #endif
